@@ -4,7 +4,7 @@ import './App.css';
 function App() {
   const [DetectedVoice, setDetectedVoice] = useState(''); // Ovoz natijasini saqlash uchun holat ustunligi
   const [isRecognizing, setIsRecognizing] = useState(false); // Ovozni aniqlash holatini saqlash uchun holat ustunligi
-
+console.log(import.meta.env.VITE_VOICE_API_KEY);
   const startRecognition = () => {
     const recognition = new window.webkitSpeechRecognition() || new window.SpeechRecognition();
     recognition.lang = 'uz-UZ'; // Ovozni aniqlash uchun tilni belgilang
