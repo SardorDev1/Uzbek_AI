@@ -71,7 +71,7 @@ function App() {
         url: 'https://chatgpt-chatgpt3-5-chatgpt4.p.rapidapi.com/v1/chat/completions',
         headers: {
           'content-type': 'application/json',
-          'X-RapidAPI-Key': '962a773fcdmsh5911332d3f70240p1f8e05jsne25fabd1ec9a',
+          'X-RapidAPI-Key': '562510d369msh5e48ae7296492d8p16e885jsn80041d9e143d',
           'X-RapidAPI-Host': 'chatgpt-chatgpt3-5-chatgpt4.p.rapidapi.com',
         },
         data: {
@@ -89,13 +89,14 @@ function App() {
       try {
         const response = await axios.request(options);
         const assistantVoice = response.data.choices?.[0].message.content;
+        console.log(assistantVoice);
         setGptMessage(assistantVoice);
       } catch (error) {
         console.error(error);
       }
     };
 
-    GptfetchData();
+    GptfetchData(); 
     setAssistantVoiceContent(null);
   }, [detectedVoice]);
 
@@ -151,7 +152,7 @@ function App() {
       <h1>{detectedVoice}</h1>
 
       {isAssistantVoiceReady && (
-        <audio ref={audioRef} id="audioPlayer" src={assistantVoiceContent} controls autoPlay />
+        <audio ref={audioRef} id="audioPlayer" src={assistantVoiceContent}  autoPlay />
       )}
     </>
   );
