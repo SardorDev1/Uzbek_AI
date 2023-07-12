@@ -1,29 +1,31 @@
-import { useEffect, useLayoutEffect, useState } from 'react';
-import './App.css';
-import axios from "axios"
+import { useEffect, useState, useRef } from 'react';
+import axios from 'axios';
+
 function App() {
+  const [detectedVoice, setDetectedVoice] = useState('');
+  const [isRecognizing, setIsRecognizing] = useState(false);
+  const [assistantVoiceContent, setAssistantVoiceContent] = useState('');
+  const [GptMessage, setGptMessage] = useState('');
+  const [isAssistantVoiceReady, setIsAssistantVoiceReady] = useState(false);
+  const audioRef = useRef(null);
 
-  const [DetectedVoice, setDetectedVoice] = useState(''); // Ovoz natijasini saqlash uchun holat ustunligi
-  const [isRecognizing, setIsRecognizing] = useState(false); // Ovozni aniqlash holatini saqlash uchun holat ustunligi
-  const [AsistantVoice, setAssistantVoice] = useState(null)
-  const [AsistantVoiceContent, setAssistantVoiceContent] = useState(null)
   const startRecognition = () => {
-    const recognition = new window.webkitSpeechRecognition() || new window.SpeechRecognition();
-    recognition.lang = 'uz-UZ'; // Ovozni aniqlash uchun tilni belgilang
-
-    setIsRecognizing(true); // Ovozni aniqlash holatini true qilish
+    const recognition = new (window.webkitSpeechRecognition || window.SpeechRecognition)();
+    recognition.lang = 'uz-UZ';
+    setIsRecognizing(true);
 
     recognition.onresult = (event) => {
       const transcript = event.results[event.results.length - 1][0].transcript;
       setDetectedVoice(transcript);
-      setIsRecognizing(false); // Ovozni aniqlash holatini false qilish
+      setIsRecognizing(false);
     };
 
     recognition.start();
   };
+
   const stopRecognition = () => {
-    setIsRecognizing(false); // Ovozni aniqlash holatini false qilish
-    setDetectedVoice(''); // Ovozni to'xtatish
+    setIsRecognizing(false);
+    setDetectedVoice('');
   };
 
   const toggleRecognition = () => {
@@ -33,85 +35,112 @@ function App() {
       startRecognition();
     }
   };
-  useLayoutEffect(() => {
-    if (DetectedVoice === '') {
 
-    } else if ( DetectedVoice === "Assalomaleykum sizning ismingiz nima" || DetectedVoice === "Assalom sizning ismingiz nima" || DetectedVoice === "Assalom sizning ismingiz nima?" || DetectedVoice === "Assalom aleykum sizning ismingiz nima?" || DetectedVoice === "salom sening isming nima" || DetectedVoice === "salom sening isming nima?" || DetectedVoice === "Salom senzning ismingiz nima" || DetectedVoice === "Salom senzning ismingiz nima?") {
+  useEffect(() => {
+    if (detectedVoice === '') {
+      return;
+    }
 
-    } else if (DetectedVoice === "seni kim yaratdi?" || DetectedVoice === "seni kim yasadi" || DetectedVoice === "sizni kim yasadi" ||  DetectedVoice === "sizni kim dasturladi" || DetectedVoice === "seni kim dasturladi?" || DetectedVoice === "sizni kim dasturladi?") {
+    if (
+      detectedVoice === 'Assalomaleykum sizning ismingiz nima' ||
+      detectedVoice === 'Assalom sizning ismingiz nima' ||
+      detectedVoice === 'Assalom sizning ismingiz nima?' ||
+      detectedVoice === 'Assalom aleykum sizning ismingiz nima?' ||
+      detectedVoice === 'salom sening isming nima' ||
+      detectedVoice === 'salom sening isming nima?' ||
+      detectedVoice === 'Salom senzning ismingiz nima' ||
+      detectedVoice === 'Salom senzning ismingiz nima?'
+    ) {
+      return;
+    }
 
-    } else if (DetectedVoice === "") {
+    if (
+      detectedVoice === 'seni kim yaratdi?' ||
+      detectedVoice === 'seni kim yasadi' ||
+      detectedVoice === 'sizni kim yasadi' ||
+      detectedVoice === 'sizni kim dasturladi' ||
+      detectedVoice === 'seni kim dasturladi?' ||
+      detectedVoice === 'sizni kim dasturladi?'
+    ) {
+      return;
+    }
 
-    } else {
+    const GptfetchData = async () => {
+      const options = {
+        method: 'POST',
+        url: 'https://chatgpt-chatgpt3-5-chatgpt4.p.rapidapi.com/v1/chat/completions',
+        headers: {
+          'content-type': 'application/json',
+          'X-RapidAPI-Key': '962a773fcdmsh5911332d3f70240p1f8e05jsne25fabd1ec9a',
+          'X-RapidAPI-Host': 'chatgpt-chatgpt3-5-chatgpt4.p.rapidapi.com',
+        },
+        data: {
+          model: 'gpt-3.5-turbo',
+          messages: [
+            {
+              role: 'user',
+              content: detectedVoice,
+            },
+          ],
+          temperature: 0.8,
+        },
+      };
 
-      const GptfetchData = async () => {
-        const options = {
-          method: 'POST',
-          url: 'https://chatgpt-chatgpt3-5-chatgpt4.p.rapidapi.com/v1/chat/completions',
+      try {
+        const response = await axios.request(options);
+        const assistantVoice = response.data.choices?.[0].message.content;
+        setGptMessage(assistantVoice);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    GptfetchData();
+    setAssistantVoiceContent(null);
+  }, [detectedVoice]);
+
+  useEffect(() => {
+    const voiceFetchData = async () => {
+      if (GptMessage !== '' && detectedVoice !== '') {
+        const config = {
+          method: 'post',
+          url: 'https://studio.mohir.ai/api/v1/tts',
           headers: {
-            'content-type': 'application/json',
-            'X-RapidAPI-Key': 'e760741a4fmshc16220c60bf4c5fp1bd712jsn7e1afbd3e64a',
-            'X-RapidAPI-Host': 'chatgpt-chatgpt3-5-chatgpt4.p.rapidapi.com'
+            Authorization: import.meta.env.VITE_VOICE_API_KEY,
+            'Content-type': 'application/json',
           },
           data: {
-            model: 'gpt-3.5-turbo',
-            messages: [
-              {
-                role: 'user',
-                content: DetectedVoice
-              }
-            ],
-            temperature: 0.8
-          }
+            text: GptMessage,
+            model: 'dilfuza',
+          },
         };
-
         try {
-          const response = await axios.request(options);
-          console.log(response.data.choices?.[0].message.content);
+          const response = await axios(config);
+          const voiceUrl = response.data.result.url;
+          setAssistantVoiceContent(voiceUrl);
+          setIsAssistantVoiceReady(true);
         } catch (error) {
           console.error(error);
         }
       }
+    };
 
-      // GptfetchData()
+    voiceFetchData();
+  }, [GptMessage, detectedVoice]);
+  const isAudioPlaying = useRef(false);
 
-    }
-    if (AsistantVoice === null) {
-
+  useEffect(() => {
+    if (isAssistantVoiceReady) {
+      isAudioPlaying.current = true;
+      audioRef.current.play();
     } else {
-
-      const VoicefetchData = async () => {
-        if (DetectedVoice !== '') {
-          const config = {
-            method: 'post',
-            url: 'https://studio.mohir.ai/api/v1/tts',
-            headers: {
-              Authorization: import.meta.env.VITE_VOICE_API_KEY,
-              "Content-type": "application/json"
-            },
-            data: {
-              text: AsistantVoice,
-              model: "dilfuza"
-            },
-          };
-          try {
-            const response = await axios(config);
-            console.log(response.data.result.url);
-            AsistantVoiceContent(response.data.result.url)
-
-          } catch (error) {
-            console.error(error);
-          }
-        }
-      };
-
-      //   VoicefetchData();
-
+      if (isAudioPlaying.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+        isAudioPlaying.current = false;
+      }
     }
-  }, [DetectedVoice]);
-
-
-
+  }, [isAssistantVoiceReady]);
 
   return (
     <>
@@ -119,8 +148,11 @@ function App() {
         {isRecognizing ? 'To\'xtatish' : 'Gapiring'}
       </button>
       <h1>Hello World!!!</h1>
-      <h1>{DetectedVoice}</h1>
-      <audio ></audio>
+      <h1>{detectedVoice}</h1>
+
+      {isAssistantVoiceReady && (
+        <audio ref={audioRef} id="audioPlayer" src={assistantVoiceContent} controls autoPlay />
+      )}
     </>
   );
 }
