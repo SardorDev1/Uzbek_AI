@@ -5,7 +5,8 @@ function App() {
 
   const [DetectedVoice, setDetectedVoice] = useState(''); // Ovoz natijasini saqlash uchun holat ustunligi
   const [isRecognizing, setIsRecognizing] = useState(false); // Ovozni aniqlash holatini saqlash uchun holat ustunligi
-
+  const [AsistantVoice, setAssistantVoice] = useState(null)
+  const [AsistantVoiceContent, setAssistantVoiceContent] = useState(null)
   const startRecognition = () => {
     const recognition = new window.webkitSpeechRecognition() || new window.SpeechRecognition();
     recognition.lang = 'uz-UZ'; // Ovozni aniqlash uchun tilni belgilang
@@ -20,7 +21,6 @@ function App() {
 
     recognition.start();
   };
-
   const stopRecognition = () => {
     setIsRecognizing(false); // Ovozni aniqlash holatini false qilish
     setDetectedVoice(''); // Ovozni to'xtatish
@@ -34,33 +34,85 @@ function App() {
     }
   };
   useLayoutEffect(() => {
-    const fetchData = async () => {
-      if (DetectedVoice !== '') {
-        const config = {
-          method: 'post',
-          url: 'https://studio.mohir.ai/api/v1/tts',
+    if (DetectedVoice === '') {
+
+    } else if ( DetectedVoice === "Assalomaleykum sizning ismingiz nima" || DetectedVoice === "Assalom sizning ismingiz nima" || DetectedVoice === "Assalom sizning ismingiz nima?" || DetectedVoice === "Assalom aleykum sizning ismingiz nima?" || DetectedVoice === "salom sening isming nima" || DetectedVoice === "salom sening isming nima?" || DetectedVoice === "Salom senzning ismingiz nima" || DetectedVoice === "Salom senzning ismingiz nima?") {
+
+    } else if (DetectedVoice === "seni kim yaratdi?" || DetectedVoice === "seni kim yasadi" || DetectedVoice === "sizni kim yasadi" ||  DetectedVoice === "sizni kim dasturladi" || DetectedVoice === "seni kim dasturladi?" || DetectedVoice === "sizni kim dasturladi?") {
+
+    } else if (DetectedVoice === "") {
+
+    } else {
+
+      const GptfetchData = async () => {
+        const options = {
+          method: 'POST',
+          url: 'https://chatgpt-chatgpt3-5-chatgpt4.p.rapidapi.com/v1/chat/completions',
           headers: {
-            Authorization: import.meta.env.VITE_VOICE_API_KEY,
-            "Content-type": "application/json"
+            'content-type': 'application/json',
+            'X-RapidAPI-Key': 'e760741a4fmshc16220c60bf4c5fp1bd712jsn7e1afbd3e64a',
+            'X-RapidAPI-Host': 'chatgpt-chatgpt3-5-chatgpt4.p.rapidapi.com'
           },
           data: {
-            text: DetectedVoice,
-            model: "dilfuza"
-          },
+            model: 'gpt-3.5-turbo',
+            messages: [
+              {
+                role: 'user',
+                content: DetectedVoice
+              }
+            ],
+            temperature: 0.8
+          }
         };
+
         try {
-          const response = await axios(config);
-          console.log(response.data.result.url);
-          
+          const response = await axios.request(options);
+          console.log(response.data.choices?.[0].message.content);
         } catch (error) {
           console.error(error);
         }
       }
-    };
-  
-    fetchData();
+
+      // GptfetchData()
+
+    }
+    if (AsistantVoice === null) {
+
+    } else {
+
+      const VoicefetchData = async () => {
+        if (DetectedVoice !== '') {
+          const config = {
+            method: 'post',
+            url: 'https://studio.mohir.ai/api/v1/tts',
+            headers: {
+              Authorization: import.meta.env.VITE_VOICE_API_KEY,
+              "Content-type": "application/json"
+            },
+            data: {
+              text: AsistantVoice,
+              model: "dilfuza"
+            },
+          };
+          try {
+            const response = await axios(config);
+            console.log(response.data.result.url);
+            AsistantVoiceContent(response.data.result.url)
+
+          } catch (error) {
+            console.error(error);
+          }
+        }
+      };
+
+      //   VoicefetchData();
+
+    }
   }, [DetectedVoice]);
-  
+
+
+
+
   return (
     <>
       <button onClick={toggleRecognition}>
