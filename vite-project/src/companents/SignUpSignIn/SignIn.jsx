@@ -130,8 +130,8 @@ export default function SignIn() {
                                 <Grid container>
 
                                     <Grid item>
-                                        <Link to={'/'} variant="body2" sx={{ cursor: 'pointer' }}>
-                                            {"Accountingiz bormi?"}
+                                        <Link to={'/signup'} variant="body2" sx={{ cursor: 'pointer' }}>
+                                            {"Accountingiz yoqmi?"}
                                         </Link>
                                     </Grid>
                                 </Grid>

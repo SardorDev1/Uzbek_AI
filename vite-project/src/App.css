@@ -64,3 +64,12 @@
 .dark .AccountClose{
 color: white;
 }
+.dark .AccountMode{
+    color: white;
+}
+.dark .AccountInfo{
+    color: white;
+}
+.dark .DetectedTextData{
+    color: white;
+}
