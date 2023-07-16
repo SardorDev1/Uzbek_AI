@@ -14,7 +14,7 @@ import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { ExitToApp } from '@mui/icons-material';
 import { useState } from 'react';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 // TODO remove, this demo shouldn't need to reset the theme.
 import { auth } from '../config/firebase';
 
@@ -33,9 +33,9 @@ export default function SignIn() {
 
         e.preventDefault();
         try {
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
             // Signed in 
-            const user = userCredential.user;
+        
             navigate('/')
             // ...
         } catch (error) {

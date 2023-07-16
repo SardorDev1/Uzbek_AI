@@ -3,13 +3,16 @@ import axios from 'axios';
 import { Avatar, Box, Card, CircularProgress, IconButton, Switch, Typography } from "@mui/material"
 import { Close, VerifiedUser } from "@mui/icons-material"
 import "../../App.css"
-
+import { onAuthStateChanged } from 'firebase/auth'
+import { auth } from '../config/firebase';
 import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 
 function Dashboard() {
+
+
     const [detectedVoice, setDetectedVoice] = useState('');
     const [isRecognizing, setIsRecognizing] = useState(false);
     const [assistantVoiceContent, setAssistantVoiceContent] = useState('');
@@ -18,6 +21,7 @@ function Dashboard() {
     const [displayText, setDisplayText] = useState('');
     const [isAssistantVoiceReady, setIsAssistantVoiceReady] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [GptMessageiSDisplay , setGptMessageiSDisplay] = useState('')
     const [dark, setDark] = useState(false);
     const audioRef = useRef(null);
     const label = { inputProps: { 'aria-label': 'Switch demo' } };
@@ -35,6 +39,18 @@ function Dashboard() {
 
         recognition.start();
     };
+
+    // const symbols = [];
+    // "’", "‵", "‛", "”", "ʼ"
+    function replaceSymbols(text) {
+        return text
+            .replace(/’/g, "'")
+            .replace(/‵/g, "'")
+            .replace(/‛/g, "'")
+            .replace(/”/g, "'")
+            .replace(/ʼ/g, "'");
+    }
+
 
     const stopRecognition = () => {
         setIsRecognizing(false);
@@ -100,7 +116,9 @@ function Dashboard() {
                             role: 'user',
                             content: detectedVoice,
                         },
+
                     ],
+
                     temperature: 0.8,
                 },
             };
@@ -109,9 +127,10 @@ function Dashboard() {
                 const response = await axios.request(options);
                 const assistantVoice = response.data.choices?.[0].message.content;
                 console.log(assistantVoice);
-                setGptMessage(assistantVoice);
+                setGptMessage("assistantVoice");
             } catch (error) {
                 console.error(error);
+                setGptMessage("Bugungi kunda menga berilayotgan so'ro'vlar ko'payib ketgani uchun men charchadim iltimos kiyinroq urinib ko'ring!!!");
             }
         };
 
@@ -130,7 +149,7 @@ function Dashboard() {
                         'Content-type': 'application/json',
                     },
                     data: {
-                        text: GptMessage,
+                        text: replaceSymbols(GptMessage),
                         model: 'dilfuza',
                     },
                 };
@@ -158,19 +177,25 @@ function Dashboard() {
     const isAudioPlaying = useRef(false);
 
     useEffect(() => {
-        setTimeout(() => {
-            if (isAssistantVoiceReady) {
-                isAudioPlaying.current = true;
-                audioRef.current.play();
-            } else {
-                if (isAudioPlaying.current) {
-                    audioRef.current.pause();
-                    audioRef.current.currentTime = 0;
-                    isAudioPlaying.current = false;
-                }
+        setGptMessageiSDisplay(GptMessage)
+        function handleAudioEnd() {
+            setDetectedVoice('')
+    setGptMessage('')
+
+
+        }
+
+        if (audioRef.current) {
+            audioRef.current.addEventListener("ended", handleAudioEnd);
+        }
+
+        return () => {
+            if (audioRef.current) {
+                audioRef.current.removeEventListener("ended", handleAudioEnd);
             }
-        }, 2000);
+        };
     }, [isAssistantVoiceReady]);
+
 
 
     useEffect(() => {
@@ -183,14 +208,44 @@ function Dashboard() {
 
     }, [detectedVoice]);
 
-    // Rest of the code...
+    // Rest of the code..
+    const [dots, setDots] = useState("...")
+    const [user, setUser] = useState(null)
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            if (user) {
+                setUser(user)
 
+            } else {
+
+
+            }
+        });
+        if (isLoading === true) {
+            const interval = setInterval(() => {
+                setDots(prevDots => {
+                    if (prevDots === '...') {
+                        return '..';
+                    } else if (prevDots === '..') {
+                        return '.';
+                    } else {
+                        return '...';
+                    }
+                });
+            }, 100);
+        } else {
+            return;
+        }
+
+        return () => clearInterval(interval);
+
+    }, []);
     return (
         <>
             <section className={dark === true ? 'App dark' : 'App'} >
 
                 <div className='Account'>
-                    <Avatar onClick={TogglShowAccount} style={{ width: '50px', height: '50px' }} src={<VerifiedUser className='AccountLogo' />} />
+                    <Avatar onClick={TogglShowAccount} style={{ width: '50px', height: '50px' }} src={(<VerifiedUser className='AccountLogo' />)} />
                     <div className='Account_Bar' style={{ width: '250px', height: '300px', borderRadius: "20px", position: 'absolute', backgroundColor: 'rgb(231, 231, 231)', display: account === false ? 'none' : 'block' }}>
                         <IconButton sx={{ position: 'absolute', right: '10px', top: '10px' }} onClick={() => setAccount(false)}>
                             <Close className='AccountClose' />
@@ -199,7 +254,7 @@ function Dashboard() {
                             <Avatar onClick={TogglShowAccount} style={{ width: '50px', height: '50px' }} src={<VerifiedUser className='AccountLogo' />} />
 
                             <Typography className='AccountInfo' ml={1} >
-                                {localStorage.getItem('fullname')} {localStorage.getItem('name')}
+                                {user?.displayName === null ? user?.email.replace('@gmail.com', '') : user?.displayName}
                             </Typography>
                         </Box>
                         <Box mt={2} ml={2} display={"flex"} alignItems={"center"}>
@@ -221,16 +276,25 @@ function Dashboard() {
                 {isAssistantVoiceReady && (
                     <>
                         {isLoading ? (
-                            <CircularProgress /> // Loaderni ko'rsatish
+                            <Box display={"flex"} alignItems={"center"}  >
+                                <CircularProgress />
+                                <h2 style={{ fontSize: "20px", marginLeft: "10px" }} >O'ylamoqda {dots}</h2>
+
+                            </Box>
                         ) : (
                             <>
 
                                 <audio ref={audioRef} id="audioPlayer" src={assistantVoiceContent} autoPlay />
-                                <div className='WrapDetectedVoice' >
-                                    <div className='BoxDetectedVoice'  >
-                                        <p className='DetectedVoice' >{GptMessage}</p>
-                                    </div>
-                                </div>
+                                {GptMessageiSDisplay === '' ? (<></>) : (
+                                    <>
+                                        <div className='WrapDetectedVoice' >
+                                            <div className='BoxDetectedVoice'  >
+                                                <p className='DetectedVoice' >{GptMessageiSDisplay}</p>
+                                            </div>
+                                        </div>
+                                    </>
+                                )
+                                }
                             </>
                         )}
                     </>

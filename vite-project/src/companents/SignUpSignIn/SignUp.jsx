@@ -12,7 +12,7 @@ import Grid from '@mui/material/Grid';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { ExitToApp } from '@mui/icons-material';
+import { Dashboard, ExitToApp } from '@mui/icons-material';
 import { useState , useeffect } from 'react';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 // TODO remove, this demo shouldn't need to reset the theme.
@@ -37,7 +37,8 @@ export default function SignUp() {
         try {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             // Signed in 
-            const user = userCredential.user;
+       
+
             navigate('/')
             // ...
         } catch (error) {
@@ -153,7 +154,7 @@ export default function SignUp() {
                                 <Grid container>
 
                                     <Grid item>
-                                        <Link to={'/'} variant="body2" sx={{ cursor: 'pointer' }}>
+                                        <Link to={'/login'} variant="body2" sx={{ cursor: 'pointer' }}>
                                             {"Accountingiz bormi?"}
                                         </Link>
                                     </Grid>
