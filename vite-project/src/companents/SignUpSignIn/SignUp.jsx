@@ -13,7 +13,7 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { Dashboard, ExitToApp } from '@mui/icons-material';
-import { useState , useeffect } from 'react';
+import { useState, useeffect } from 'react';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 // TODO remove, this demo shouldn't need to reset the theme.
 import { auth } from '../config/firebase';
@@ -30,14 +30,14 @@ export default function SignUp() {
     const navigate = useNavigate()
 
     const SignUpHandler = async (e) => {
-       
+
         localStorage.setItem('fullname', fullname)
         localStorage.setItem('name', name)
         e.preventDefault();
         try {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             // Signed in 
-       
+
 
             navigate('/')
             // ...
@@ -120,7 +120,7 @@ export default function SignUp() {
                                     required
                                     fullWidth
                                     id="email"
-                                    onChange={(e) =>setEmail(e.target.value)}
+                                    onChange={(e) => setEmail(e.target.value)}
 
                                     label="Emailngiz"
                                     name="email"

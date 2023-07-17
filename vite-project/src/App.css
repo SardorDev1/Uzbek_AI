@@ -16,7 +16,7 @@
 
 .BoxDetectedVoice {
     max-width: 600px;
-    min-height: 400px;
+    min-height: 100%;
     padding: 20px;
     background-color: rgb(231, 231, 231);
 
@@ -38,38 +38,134 @@
         font-size: 15px;
         font-family: 'VT323', monospace;
     }
+
+    .BoxDetectedVoice .CloseDetectedVoice {
+        font-size: 20px !important;
+    }
 }
-.App{
+
+.App {
     min-height: 100vh;
 }
-.dark{
+
+.dark {
     background-color: rgb(28, 28, 28);
 }
-.dark .BoxDetectedVoice{
+
+.dark .BoxDetectedVoice {
     background-color: rgb(36, 36, 36);
 }
-.dark .BoxDetectedVoice p{
-    color: rgb(231, 231, 231);
+
+.dark .BoxDetectedVoice p {
+    color: #e7e7e7;
 }
-.Account{
+
+.Account {
     display: flex;
     justify-content: end;
+
     border-radius: 20px;
     padding: 10px;
 }
-.dark .Account_Bar{
 
-    background-color: rgb(36, 36, 36) !important;
+.dark .Account_Bar {
+
+    background-color: #242424 !important;
 }
-.dark .AccountClose{
-color: white;
-}
-.dark .AccountMode{
+
+.dark .AccountClose {
     color: white;
 }
-.dark .AccountInfo{
+
+.dark .AccountMode {
     color: white;
+}
+
+.dark .AccountInfo {
+    color: white;
+}
+
+.dark .DetectedTextData {
+    color: white;
+}
+
+.BoxDetectedVoice {
+    position: relative;
+}
+
+.BoxDetectedVoice .CloseDetectedVoice {
+    position: absolute;
+    top: 10px;
+    transition: .1s ease;
+    right: 10px;
+    cursor: pointer;
+    font-size: 30px;
+
+}
+
+.BoxDetectedVoice .CloseDetectedVoice:hover {
+    transform: scale(1.2);
+}
+
+.dark .BoxDetectedVoice .CloseDetectedVoice {
+    color: #e7e7e7;
+}
+
+
+#MicrophoneButton {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: none;
+    display: flex;
+    margin: auto;
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(214, 214, 214);
+
+}
+
+.MicrophoneButtonOn {
+    animation: animationOnMicrophone 1s infinite;
+}
+.MicrophoneIcon{
+    color: rgb(50, 50, 50);
+    font-size: 50px !important;
+    cursor: pointer;
+}
+.dark #MicrophoneButton {
+    background-color: #242424;
+
+}
+.dark .MicrophoneIcon{
+    color: #e7e7e7;
+}
+
+@keyframes animationOnMicrophone {
+    0% {
+        transform: scale(1.3);
+    
+    }
+
+    50% {
+        transform: scale(1.2);
+    }
+
+    100% {
+        transform: scale(1.3);
+    }
+    
+
+}
+.DetectedTextData{
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    font-size: 20px;
+    font-family: 'VT323', monospace;
+    color: #3b3b3b;
+
 }
 .dark .DetectedTextData{
-    color: white;
+    color: #e7e7e7;
 }

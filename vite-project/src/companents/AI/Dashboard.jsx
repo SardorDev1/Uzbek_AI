@@ -1,7 +1,8 @@
 import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { Avatar, Box, Card, CircularProgress, IconButton, Switch, Typography } from "@mui/material"
-import { Close, VerifiedUser } from "@mui/icons-material"
+import { Close, VerifiedUser, KeyboardVoice } from "@mui/icons-material"
+import { Grow, Slide, Fade, Snackbar, Button } from '@mui/material';
 import "../../App.css"
 import { onAuthStateChanged } from 'firebase/auth'
 import { auth } from '../config/firebase';
@@ -9,6 +10,15 @@ import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
+
+
+
+
+function GrowTransition(props) {
+    return <Grow {...props} />;
+}
+
+
 
 function Dashboard() {
 
@@ -21,7 +31,8 @@ function Dashboard() {
     const [displayText, setDisplayText] = useState('');
     const [isAssistantVoiceReady, setIsAssistantVoiceReady] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const [GptMessageiSDisplay , setGptMessageiSDisplay] = useState('')
+
+    const [GptMessageiSDisplay, setGptMessageiSDisplay] = useState('')
     const [dark, setDark] = useState(false);
     const audioRef = useRef(null);
     const label = { inputProps: { 'aria-label': 'Switch demo' } };
@@ -106,7 +117,7 @@ function Dashboard() {
                 url: 'https://chatgpt-chatgpt3-5-chatgpt4.p.rapidapi.com/v1/chat/completions',
                 headers: {
                     'content-type': 'application/json',
-                    'X-RapidAPI-Key': '79692c277fmshae8025707f0162cp130ff0jsn56637df21b6c',
+                    // 'X-RapidAPI-Key': '58e905241bmsh31c0daffa9a0beap1c46b8jsn6b4acf239e73',
                     'X-RapidAPI-Host': 'chatgpt-chatgpt3-5-chatgpt4.p.rapidapi.com'
                 },
                 data: {
@@ -127,7 +138,7 @@ function Dashboard() {
                 const response = await axios.request(options);
                 const assistantVoice = response.data.choices?.[0].message.content;
                 console.log(assistantVoice);
-                setGptMessage("assistantVoice");
+                setGptMessage(assistantVoice);
             } catch (error) {
                 console.error(error);
                 setGptMessage("Bugungi kunda menga berilayotgan so'ro'vlar ko'payib ketgani uchun men charchadim iltimos kiyinroq urinib ko'ring!!!");
@@ -180,7 +191,7 @@ function Dashboard() {
         setGptMessageiSDisplay(GptMessage)
         function handleAudioEnd() {
             setDetectedVoice('')
-    setGptMessage('')
+            setGptMessage('')
 
 
         }
@@ -194,6 +205,8 @@ function Dashboard() {
                 audioRef.current.removeEventListener("ended", handleAudioEnd);
             }
         };
+
+
     }, [isAssistantVoiceReady]);
 
 
@@ -205,7 +218,9 @@ function Dashboard() {
 
         // Rest of the code...
         setDisplayText(detectedVoice);
-
+        setTimeout(() => {
+            setDisplayText('')
+        }, 4000)
     }, [detectedVoice]);
 
     // Rest of the code..
@@ -232,7 +247,7 @@ function Dashboard() {
                         return '...';
                     }
                 });
-            }, 100);
+            }, 150);
         } else {
             return;
         }
@@ -240,6 +255,22 @@ function Dashboard() {
         return () => clearInterval(interval);
 
     }, []);
+
+    const [state, setState] = useState({
+        open: true,
+        Transition: Fade,
+    });
+
+
+    const handleClick = (Transition) => () => {
+        setState({
+            open: isLoading === true ? true : false,
+            Transition,
+        });
+    };
+
+
+
     return (
         <>
             <section className={dark === true ? 'App dark' : 'App'} >
@@ -268,18 +299,26 @@ function Dashboard() {
                 </div>
 
 
-                <button onClick={toggleRecognition}>
-                    {isRecognizing ? 'To\'xtatish' : 'Gapiring'}
-                </button>
+                <button id='MicrophoneButton' className={isRecognizing ? 'MicrophoneButtonOn' : 'MicrophoneButtonOff'} onClick={toggleRecognition}>
 
+                    {isRecognizing ? <KeyboardVoice className='MicrophoneIcon' /> : <KeyboardVoice className='MicrophoneIcon ' />}
+                </button>
                 <h1 className='DetectedTextData' >{displayText === '' ? '' : displayText}</h1>
+
+             
                 {isAssistantVoiceReady && (
                     <>
-                        {isLoading ? (
+                        {isLoading === true ? (
                             <Box display={"flex"} alignItems={"center"}  >
-                                <CircularProgress />
-                                <h2 style={{ fontSize: "20px", marginLeft: "10px" }} >O'ylamoqda {dots}</h2>
 
+                                <Snackbar
+                                    open={state.open}
+                                    TransitionComponent={state.Transition}
+                                    sx={{ borderRadius: "20px" }}
+                                    message={<div style={{ display: 'flex', alignItems: 'center' }}><CircularProgress />  <p style={{ marginLeft: "10px" }} >O'ylamoqda {dots}</p></div>}
+                                    key={state.Transition.name}
+
+                                />
                             </Box>
                         ) : (
                             <>
@@ -288,7 +327,12 @@ function Dashboard() {
                                 {GptMessageiSDisplay === '' ? (<></>) : (
                                     <>
                                         <div className='WrapDetectedVoice' >
+
                                             <div className='BoxDetectedVoice'  >
+                                                <div onClick={() => setGptMessageiSDisplay('')} >
+                                                    <Close className='CloseDetectedVoice' />
+
+                                                </div>
                                                 <p className='DetectedVoice' >{GptMessageiSDisplay}</p>
                                             </div>
                                         </div>
@@ -299,6 +343,8 @@ function Dashboard() {
                         )}
                     </>
                 )}
+
+
 
             </section >
 
