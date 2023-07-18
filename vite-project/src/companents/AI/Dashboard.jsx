@@ -4,7 +4,7 @@ import { Avatar, Box, Card, CircularProgress, IconButton, Switch, Typography } f
 import { Close, VerifiedUser, KeyboardVoice } from "@mui/icons-material"
 import { Grow, Slide, Fade, Snackbar, Button } from '@mui/material';
 import "../../App.css"
-import { onAuthStateChanged } from 'firebase/auth'
+import { onAuthStateChanged, signOut } from 'firebase/auth'
 import { auth } from '../config/firebase';
 import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
@@ -31,7 +31,8 @@ function Dashboard() {
     const [displayText, setDisplayText] = useState('');
     const [isAssistantVoiceReady, setIsAssistantVoiceReady] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-
+    const [MessageFromIF, setMessageFromIF] = useState('')
+    const [VoiceTrue, setVoiceTrue] = useState(false)
     const [GptMessageiSDisplay, setGptMessageiSDisplay] = useState('')
     const [dark, setDark] = useState(false);
     const audioRef = useRef(null);
@@ -84,40 +85,46 @@ function Dashboard() {
     useEffect(() => {
         if (detectedVoice === '') {
             return;
-        }
-
-        if (
-            detectedVoice === 'Assalomaleykum sizning ismingiz nima' ||
-            detectedVoice === 'Assalom sizning ismingiz nima' ||
-            detectedVoice === 'Assalom sizning ismingiz nima?' ||
-            detectedVoice === 'Assalom aleykum sizning ismingiz nima?' ||
-            detectedVoice === 'salom sening isming nima' ||
-            detectedVoice === 'salom sening isming nima?' ||
-            detectedVoice === 'Salom senzning ismingiz nima' ||
-            detectedVoice === 'Salom senzning ismingiz nima?'
+        } else if (
+            detectedVoice === 'Assalomaleykum' ||
+            detectedVoice === 'Assalom' ||
+            detectedVoice === 'Assalomalekum' ||
+            detectedVoice === 'assalom aleykum' ||
+            detectedVoice === 'assalom alekum' ||
+            detectedVoice === 'asalom' ||
+            detectedVoice === 'assalom' ||
+            detectedVoice === 'salomat'
         ) {
-            return;
-        }
-
-        if (
-            detectedVoice === 'seni kim yaratdi?' ||
-            detectedVoice === 'seni kim yasadi' ||
-            detectedVoice === 'sizni kim yasadi' ||
-            detectedVoice === 'sizni kim dasturladi' ||
-            detectedVoice === 'seni kim dasturladi?' ||
-            detectedVoice === 'sizni kim dasturladi?'
+            setMessageFromIF(`Assalomu Aleykum!!! ${localStorage.getItem('name') === null ? user?.displayName === null ? user?.email.replace('@gmail.com', '') : user?.displayName : localStorage.getItem('name')} aka! sizga qanday yordam berishim mumkin`)
+            setVoiceTrue(true)
+        } else if (
+            detectedVoice === 'rahmat senga' ||
+            detectedVoice === 'rahmat' ||
+            detectedVoice === 'katta rahmat senga' ||
+            detectedVoice === 'tashakur senga' ||
+            detectedVoice === 'tashakur' ||
+            detectedVoice === 'katta rahmat' ||
+            detectedVoice === 'katta rahmat sizga' ||
+            detectedVoice === 'rahmat sizga' ||
+            detectedVoice === 'rahmatlar bolsin' ||
+            detectedVoice === 'tashakur sizga' ||
+            detectedVoice === 'rahmat sog bol' ||
+            detectedVoice === 'tashakur sog bol'
         ) {
-            return;
+            const reqRandom = ["Sog' bo'ling, meni ishlatganingizdan hursandman", `Sizga ham rahmat ${localStorage.getItem('name') === null ? user?.displayName === null ? user?.email.replace('@gmail.com', '') : user?.displayName : localStorage.getItem('name')} aka!, sizga yordam berganimdan hursandman`, "Bugungi kun uchun sizga rahmat!" ,"Salomat Bo'ling, sizga ham katta rahmat meni ishlatganingiz uchun"];
+            const randomIndex = Math.floor(Math.random() * reqRandom.length);
+            setGptMessage(reqRandom[randomIndex]);
+            setMessageFromIF(`Sizgaham rahmat ${localStorage.getItem('name') === null ? user?.displayName === null ? user?.email.replace('@gmail.com', '') : user?.displayName : localStorage.getItem('name')} aka!, sizga yordam berganimdan hursandman`)
+            setVoiceTrue(true)
         }
-
         const GptfetchData = async () => {
-
+            detectedVoice
             const options = {
                 method: 'POST',
                 url: 'https://chatgpt-chatgpt3-5-chatgpt4.p.rapidapi.com/v1/chat/completions',
                 headers: {
                     'content-type': 'application/json',
-                    // 'X-RapidAPI-Key': '58e905241bmsh31c0daffa9a0beap1c46b8jsn6b4acf239e73',
+                    'X-RapidAPI-Key': '39c64421ddmshc42d6a200bd8f86p123345jsnfb5c222dedf0',
                     'X-RapidAPI-Host': 'chatgpt-chatgpt3-5-chatgpt4.p.rapidapi.com'
                 },
                 data: {
@@ -134,19 +141,26 @@ function Dashboard() {
                 },
             };
 
+            setIsLoading(true)
+
             try {
                 const response = await axios.request(options);
                 const assistantVoice = response.data.choices?.[0].message.content;
                 console.log(assistantVoice);
+                setIsLoading(false)
                 setGptMessage(assistantVoice);
+
             } catch (error) {
                 console.error(error);
-                setGptMessage("Bugungi kunda menga berilayotgan so'ro'vlar ko'payib ketgani uchun men charchadim iltimos kiyinroq urinib ko'ring!!!");
+                const reqRandom = ["Obooo yana sizmi!", `Iltimos ${localStorage.getItem('name') === null ? user?.displayName === null ? user?.email.replace('@gmail.com', '') : user?.displayName : localStorage.getItem('name')} aka! kiyinroq qayta urinib ko'ring!`, "Bugungi kunda menga beriloyotgan so'rovlar kopayib ketti kiyinroq urinib koring"];
+                const randomIndex = Math.floor(Math.random() * reqRandom.length);
+                setGptMessage(reqRandom[randomIndex]);
             }
         };
 
         GptfetchData();
         setAssistantVoiceContent(null);
+
     }, [detectedVoice]);
     useEffect(() => {
         const voiceFetchData = async () => {
@@ -160,8 +174,8 @@ function Dashboard() {
                         'Content-type': 'application/json',
                     },
                     data: {
-                        text: replaceSymbols(GptMessage),
-                        model: 'dilfuza',
+                        text: VoiceTrue === true ? replaceSymbols(MessageFromIF) : replaceSymbols(GptMessage),
+                        model: 'davron',
                     },
                 };
                 try {
@@ -174,8 +188,9 @@ function Dashboard() {
                         setAssistantVoiceContent(voiceUrl);
                         setIsLoading(false);
                         setIsAssistantVoiceReady(true);
-                    }, 500);
 
+                    }, 500);
+                  
                 } catch (error) {
                     console.error(error);
                     setIsLoading(false);
@@ -188,11 +203,14 @@ function Dashboard() {
     const isAudioPlaying = useRef(false);
 
     useEffect(() => {
-        setGptMessageiSDisplay(GptMessage)
+        setGptMessageiSDisplay(VoiceTrue === true ? MessageFromIF : GptMessage)
         function handleAudioEnd() {
             setDetectedVoice('')
-            setGptMessage('')
 
+            setVoiceTrue(false)
+setTimeout(() => {
+    setGptMessage('')
+}, 500);
 
         }
 
@@ -292,8 +310,11 @@ function Dashboard() {
                             <Typography className='AccountMode'>
                                 Dark Mode
                                 <Switch {...label} checked={dark} onChange={ToggleDarkMode} />
-
                             </Typography>
+                        </Box>
+                        <Box>
+                            <button onClick={() => signOut(auth)} >Sign</button>
+
                         </Box>
                     </div>
                 </div>
@@ -305,7 +326,7 @@ function Dashboard() {
                 </button>
                 <h1 className='DetectedTextData' >{displayText === '' ? '' : displayText}</h1>
 
-             
+
                 {isAssistantVoiceReady && (
                     <>
                         {isLoading === true ? (

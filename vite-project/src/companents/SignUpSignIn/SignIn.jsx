@@ -14,7 +14,7 @@ import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { ExitToApp } from '@mui/icons-material';
 import { useState } from 'react';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword  } from 'firebase/auth';
 // TODO remove, this demo shouldn't need to reset the theme.
 import { auth } from '../config/firebase';
 
