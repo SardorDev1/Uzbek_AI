@@ -111,35 +111,35 @@ function Dashboard() {
             detectedVoice === 'rahmat sog bol' ||
             detectedVoice === 'tashakur sog bol'
         ) {
-            const reqRandom = ["Sog' bo'ling, meni ishlatganingizdan hursandman", `Sizga ham rahmat ${localStorage.getItem('name') === null ? user?.displayName === null ? user?.email.replace('@gmail.com', '') : user?.displayName : localStorage.getItem('name')} aka!, sizga yordam berganimdan hursandman`, "Bugungi kun uchun sizga rahmat!" ,"Salomat Bo'ling, sizga ham katta rahmat meni ishlatganingiz uchun"];
+            const reqRandom = ["Sog' bo'ling, meni ishlatganingizdan hursandman", `Sizga ham rahmat ${localStorage.getItem('name') === null ? user?.displayName === null ? user?.email.replace('@gmail.com', '') : user?.displayName : localStorage.getItem('name')} aka!, sizga yordam berganimdan hursandman`, "Bugungi kun uchun sizga rahmat!", "Salomat Bo'ling, sizga ham katta rahmat meni ishlatganingiz uchun"];
             const randomIndex = Math.floor(Math.random() * reqRandom.length);
             setGptMessage(reqRandom[randomIndex]);
             setMessageFromIF(`Sizgaham rahmat ${localStorage.getItem('name') === null ? user?.displayName === null ? user?.email.replace('@gmail.com', '') : user?.displayName : localStorage.getItem('name')} aka!, sizga yordam berganimdan hursandman`)
             setVoiceTrue(true)
         }
         const GptfetchData = async () => {
-            detectedVoice
-            const options = {
-                method: 'POST',
-                url: 'https://chatgpt-chatgpt3-5-chatgpt4.p.rapidapi.com/v1/chat/completions',
-                headers: {
-                    'content-type': 'application/json',
-                    'X-RapidAPI-Key': '39c64421ddmshc42d6a200bd8f86p123345jsnfb5c222dedf0',
-                    'X-RapidAPI-Host': 'chatgpt-chatgpt3-5-chatgpt4.p.rapidapi.com'
-                },
-                data: {
-                    model: 'gpt-3.5-turbo',
-                    messages: [
-                        {
-                            role: 'user',
-                            content: detectedVoice,
-                        },
 
-                    ],
+            // const options = {
+            //     method: 'POST',
+            //     url: 'https://chatgpt-chatgpt3-5-chatgpt4.p.rapidapi.com/v1/chat/completions',
+            //     headers: {
+            //         'content-type': 'application/json',
+            //         'X-RapidAPI-Key': '39c64421ddmshc42d6a200bd8f86p123345jsnfb5c222dedf0',
+            //         'X-RapidAPI-Host': 'chatgpt-chatgpt3-5-chatgpt4.p.rapidapi.com'
+            //     },
+            //     data: {
+            //         model: 'gpt-3.5-turbo',
+            //         messages: [
+            //             {
+            //                 role: 'user',
+            //                 content: detectedVoice,
+            //             },
 
-                    temperature: 0.8,
-                },
-            };
+            //         ],
+
+            //         temperature: 0.8,
+            //     },
+            // };
 
             setIsLoading(true)
 
@@ -190,7 +190,7 @@ function Dashboard() {
                         setIsAssistantVoiceReady(true);
 
                     }, 500);
-                  
+
                 } catch (error) {
                     console.error(error);
                     setIsLoading(false);
@@ -208,9 +208,9 @@ function Dashboard() {
             setDetectedVoice('')
 
             setVoiceTrue(false)
-setTimeout(() => {
-    setGptMessage('')
-}, 500);
+            setTimeout(() => {
+                setGptMessage('')
+            }, 500);
 
         }
 
@@ -250,7 +250,7 @@ setTimeout(() => {
                 setUser(user)
 
             } else {
-
+                navigator("/login")
 
             }
         });
@@ -279,7 +279,20 @@ setTimeout(() => {
         Transition: Fade,
     });
 
+    useEffect(() => {
 
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+          if (user) {
+    
+            navigate('/')
+          } else {
+    
+            navigator('/login')
+          }
+        });
+    
+        return () => unsubscribe();
+      }, []);
     const handleClick = (Transition) => () => {
         setState({
             open: isLoading === true ? true : false,
@@ -288,7 +301,12 @@ setTimeout(() => {
     };
 
 
-
+    const SignOutHandler = () => {
+        localStorage.clear()
+        setTimeout(() => {
+            signOut(auth)
+        }, 200);
+    }
     return (
         <>
             <section className={dark === true ? 'App dark' : 'App'} >
@@ -313,8 +331,9 @@ setTimeout(() => {
                             </Typography>
                         </Box>
                         <Box>
-                            <button onClick={() => signOut(auth)} >Sign</button>
-
+                            <Button onClick={SignOutHandler} variant="outlined" className='AccountOutButton' color="error">
+                                Akkauntdan Chiqish
+                            </Button>
                         </Box>
                     </div>
                 </div>

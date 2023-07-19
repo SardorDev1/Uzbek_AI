@@ -169,3 +169,11 @@
 .dark .DetectedTextData{
     color: #e7e7e7;
 }
+.AccountOutButton{
+    margin: auto;
+    background-color: red !important;
+    color: white !important;
+}
+.AccountOutButton:hover{
+    background-color: rgb(255, 0, 0);
+}
