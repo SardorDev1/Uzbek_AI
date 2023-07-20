@@ -95,11 +95,12 @@ function Dashboard() {
             detectedVoice === 'assalom' ||
             detectedVoice === 'salomat'
         ) {
-            setMessageFromIF(`Assalomu Aleykum!!! ${localStorage.getItem('name') === null ? user?.displayName === null ? user?.email.replace('@gmail.com', '') : user?.displayName : localStorage.getItem('name')} aka! sizga qanday yordam berishim mumkin`)
+            setMessageFromIF(`Assalomu Aleykum ${localStorage.getItem('name') === null ? user?.displayName === null ? user?.email?.replace('@gmail.com', '').replace(/[0-9]/g, '') : user?.displayName : localStorage.getItem('name')}! sizga qanday yordam berishim mumkin`)
             setVoiceTrue(true)
         } else if (
             detectedVoice === 'rahmat senga' ||
             detectedVoice === 'rahmat' ||
+            detectedVoice === 'katta raxmat senga' ||
             detectedVoice === 'katta rahmat senga' ||
             detectedVoice === 'tashakur senga' ||
             detectedVoice === 'tashakur' ||
@@ -107,39 +108,61 @@ function Dashboard() {
             detectedVoice === 'katta rahmat sizga' ||
             detectedVoice === 'rahmat sizga' ||
             detectedVoice === 'rahmatlar bolsin' ||
+            detectedVoice === 'katta raxmat sanga' ||
             detectedVoice === 'tashakur sizga' ||
             detectedVoice === 'rahmat sog bol' ||
             detectedVoice === 'tashakur sog bol'
         ) {
-            const reqRandom = ["Sog' bo'ling, meni ishlatganingizdan hursandman", `Sizga ham rahmat ${localStorage.getItem('name') === null ? user?.displayName === null ? user?.email.replace('@gmail.com', '') : user?.displayName : localStorage.getItem('name')} aka!, sizga yordam berganimdan hursandman`, "Bugungi kun uchun sizga rahmat!", "Salomat Bo'ling, sizga ham katta rahmat meni ishlatganingiz uchun"];
+            const reqRandom = ["Sog' bo'ling, meni ishlatganingizdan hursandman", `Sizga ham rahmat ${localStorage.getItem('name') === null ? user?.displayName === null ? user?.email?.replace('@gmail.com', '').replace(/[0-9]/g, '') : user?.displayName : localStorage.getItem('name')} aka!, sizga yordam berganimdan hursandman`, "Bugungi kun uchun sizga rahmat!", "Salomat Bo'ling, sizga ham katta rahmat meni ishlatganingiz uchun"];
             const randomIndex = Math.floor(Math.random() * reqRandom.length);
             setGptMessage(reqRandom[randomIndex]);
-            setMessageFromIF(`Sizgaham rahmat ${localStorage.getItem('name') === null ? user?.displayName === null ? user?.email.replace('@gmail.com', '') : user?.displayName : localStorage.getItem('name')} aka!, sizga yordam berganimdan hursandman`)
+            setMessageFromIF(reqRandom[randomIndex])
+            setVoiceTrue(true)
+        }
+        else if (
+            detectedVoice === 'valekum assalom' ||
+            detectedVoice === 'valekum' ||
+            detectedVoice === 'vaaleykum assalom' ||
+            detectedVoice === 'valekum asalom' ||
+            detectedVoice === 'vaalaykum asalom' ||
+            detectedVoice === 'volikum assalom' ||
+            detectedVoice === 'voaleykum assalom' ||
+            detectedVoice === 'volekum asalom' ||
+            detectedVoice === 'voaleykum assalom' ||
+            detectedVoice === 'valikum assalom' ||
+            detectedVoice === 'volikum asalom' ||
+            detectedVoice === 'va aleykum assalom'
+
+        ) {
+            const reqRandom = ["Menga qanday savolingiz bor?", `menga qanday savolingiz bor? ${localStorage.getItem('name') === null ? user?.displayName === null ? user?.email?.replace('@gmail.com', '').replace(/[0-9]/g, '') : user?.displayName : localStorage.getItem('name')}`, "Savolingiz bormi?", "Savollar bo'sa bemalol"];
+            const randomIndex = Math.floor(Math.random() * reqRandom.length);
+            setGptMessage(reqRandom[randomIndex]);
+            setMessageFromIF(reqRandom[randomIndex])
             setVoiceTrue(true)
         }
         const GptfetchData = async () => {
 
-            // const options = {
-            //     method: 'POST',
-            //     url: 'https://chatgpt-chatgpt3-5-chatgpt4.p.rapidapi.com/v1/chat/completions',
-            //     headers: {
-            //         'content-type': 'application/json',
-            //         'X-RapidAPI-Key': '39c64421ddmshc42d6a200bd8f86p123345jsnfb5c222dedf0',
-            //         'X-RapidAPI-Host': 'chatgpt-chatgpt3-5-chatgpt4.p.rapidapi.com'
-            //     },
-            //     data: {
-            //         model: 'gpt-3.5-turbo',
-            //         messages: [
-            //             {
-            //                 role: 'user',
-            //                 content: detectedVoice,
-            //             },
+            const options = {
+                method: 'POST',
+                url: 'https://chatgpt-chatgpt3-5-chatgpt4.p.rapidapi.com/v1/chat/completions',
+                headers: {
+                  'content-type': 'application/json',
+                  'X-RapidAPI-Key': '0a0c0a24c2msh5bec3f133a111f2p1876cajsnd92a500a2381',
+                  'X-RapidAPI-Host': 'chatgpt-chatgpt3-5-chatgpt4.p.rapidapi.com'
+                },
+                data: {
+                    model: 'gpt-3.5-turbo',
+                    messages: [
+                        {
+                            role: 'user',
+                            content: detectedVoice,
+                        },
 
-            //         ],
+                    ],
 
-            //         temperature: 0.8,
-            //     },
-            // };
+                    temperature: 0.8,
+                },
+            };
 
             setIsLoading(true)
 
@@ -152,7 +175,7 @@ function Dashboard() {
 
             } catch (error) {
                 console.error(error);
-                const reqRandom = ["Obooo yana sizmi!", `Iltimos ${localStorage.getItem('name') === null ? user?.displayName === null ? user?.email.replace('@gmail.com', '') : user?.displayName : localStorage.getItem('name')} aka! kiyinroq qayta urinib ko'ring!`, "Bugungi kunda menga beriloyotgan so'rovlar kopayib ketti kiyinroq urinib koring"];
+                const reqRandom = ["Obooo yana sizmi!", `Iltimos ${localStorage.getItem('name') === null ? user?.displayName === null ? user?.email?.replace('@gmail.com', '').replace(/[0-9]/g, '') : user?.displayName : localStorage.getItem('name')} aka! kiyinroq qayta urinib ko'ring!`, "Bugungi kunda menga beriloyotgan so'rovlar kopayib ketti kiyinroq urinib koring"];
                 const randomIndex = Math.floor(Math.random() * reqRandom.length);
                 setGptMessage(reqRandom[randomIndex]);
             }
@@ -248,7 +271,7 @@ function Dashboard() {
         const unsubscribe = onAuthStateChanged(auth, (user) => {
             if (user) {
                 setUser(user)
-
+                console.log(user);
             } else {
                 navigator("/login")
 
@@ -279,20 +302,7 @@ function Dashboard() {
         Transition: Fade,
     });
 
-    useEffect(() => {
 
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
-          if (user) {
-    
-            navigate('/')
-          } else {
-    
-            navigator('/login')
-          }
-        });
-    
-        return () => unsubscribe();
-      }, []);
     const handleClick = (Transition) => () => {
         setState({
             open: isLoading === true ? true : false,
@@ -302,10 +312,11 @@ function Dashboard() {
 
 
     const SignOutHandler = () => {
-        localStorage.clear()
-        setTimeout(() => {
-            signOut(auth)
-        }, 200);
+        signOut(auth).then(() => {
+            localStorage.clear()
+        }).catch((error) => {
+            // An error happened.
+        });
     }
     return (
         <>
@@ -321,7 +332,7 @@ function Dashboard() {
                             <Avatar onClick={TogglShowAccount} style={{ width: '50px', height: '50px' }} src={<VerifiedUser className='AccountLogo' />} />
 
                             <Typography className='AccountInfo' ml={1} >
-                                {user?.displayName === null ? user?.email.replace('@gmail.com', '') : user?.displayName}
+                                {user?.displayName === null ? user?.email?.replace('@gmail.com', '').replace(/[0-9]/g, '') : user?.displayName}
                             </Typography>
                         </Box>
                         <Box mt={2} ml={2} display={"flex"} alignItems={"center"}>
