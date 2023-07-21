@@ -1,10 +1,10 @@
 import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { Avatar, Box, Card, CircularProgress, IconButton, Switch, Typography } from "@mui/material"
-import { Close, VerifiedUser, KeyboardVoice } from "@mui/icons-material"
+import { Close, VerifiedUser, KeyboardVoice  , CheckCircle} from "@mui/icons-material"
 import { Grow, Slide, Fade, Snackbar, Button } from '@mui/material';
 import "../../App.css"
-import { onAuthStateChanged, signOut } from 'firebase/auth'
+import { onAuthStateChanged, signOut  } from 'firebase/auth'
 import { auth } from '../config/firebase';
 import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
@@ -34,6 +34,8 @@ function Dashboard() {
     const [MessageFromIF, setMessageFromIF] = useState('')
     const [VoiceTrue, setVoiceTrue] = useState(false)
     const [GptMessageiSDisplay, setGptMessageiSDisplay] = useState('')
+    
+    const [catchs, setCatchs] = useState(false)
     const [GptMessageLaunguage, setGptMessageLaunguage] = useState('')
     const [dark, setDark] = useState(false);
     const audioRef = useRef(null);
@@ -92,11 +94,21 @@ function Dashboard() {
             detectedVoice === 'Assalomalekum' ||
             detectedVoice === 'assalom aleykum' ||
             detectedVoice === 'assalom alekum' ||
+            detectedVoice === 'salom aleykum' ||
+            detectedVoice === 'salomalekum' ||
             detectedVoice === 'asalom' ||
             detectedVoice === 'assalom' ||
+            detectedVoice === 'assalomu aleykum' ||
+            detectedVoice === 'assalomu alekum' ||
+            detectedVoice === 'assalom alekum' ||
             detectedVoice === 'salomat'
         ) {
-            setMessageFromIF(`Assalomu Aleykum ${localStorage.getItem('name') === null ? user?.displayName === null ? user?.email?.replace('@gmail.com', '').replace(/[0-9]/g, '') : user?.displayName : localStorage.getItem('name')}! sizga qanday yordam berishim mumkin`)
+            setMessageFromIF(``)
+            const reqRandom = ["Vo alekum Assalom", `Assalomu Aleykum! ${localStorage.getItem('name') === null ? user?.displayName === null ? user?.email?.replace('@gmail.com', '').replace(/[0-9]/g, '') : user?.displayName : localStorage.getItem('name')}! sizga qanday yordam berishim mumkin?`, "Assalomu Aleykum! , ko'nglingiz nima hoxlaydi!", `Assalom Aleykum! amringizga muntazirman ${localStorage.getItem('name') === null ? user?.displayName === null ? user?.email?.replace('@gmail.com', '').replace(/[0-9]/g, '') : user?.displayName : localStorage.getItem('name')}!!!`];
+            const randomIndex = Math.floor(Math.random() * reqRandom.length);
+            setGptMessage(reqRandom[randomIndex]);
+            setMessageFromIF(reqRandom[randomIndex])
+    
             setVoiceTrue(true)
         } else if (
             detectedVoice === 'rahmat senga' ||
@@ -114,7 +126,7 @@ function Dashboard() {
             detectedVoice === 'rahmat sog bol' ||
             detectedVoice === 'tashakur sog bol'
         ) {
-            const reqRandom = ["Sog' bo'ling, meni ishlatganingizdan hursandman", `Sizga ham rahmat ${localStorage.getItem('name') === null ? user?.displayName === null ? user?.email?.replace('@gmail.com', '').replace(/[0-9]/g, '') : user?.displayName : localStorage.getItem('name')} aka!, sizga yordam berganimdan hursandman`, "Bugungi kun uchun sizga rahmat!", "Salomat Bo'ling, sizga ham katta rahmat meni ishlatganingiz uchun"];
+            const reqRandom = ["Sog' bo'ling, meni ishlatganingizdan hursandman", `Sizga ham rahmat ${localStorage.getItem('name') === null ? user?.displayName === null ? user?.email?.replace('@gmail.com', '').replace(/[0-9]/g, '') : user?.displayName : localStorage.getItem('name')}!, sizga yordam berganimdan hursandman`, "Bugungi kun uchun sizga rahmat!", "Salomat Bo'ling, sizga ham katta rahmat meni ishlatganingiz uchun"];
             const randomIndex = Math.floor(Math.random() * reqRandom.length);
             setGptMessage(reqRandom[randomIndex]);
             setMessageFromIF(reqRandom[randomIndex])
@@ -172,9 +184,10 @@ function Dashboard() {
 
             } catch (error) {
                 console.error(error);
-                const reqRandom = ["Obooo yana sizmi!", `Iltimos ${localStorage.getItem('name') === null ? user?.displayName === null ? user?.email?.replace('@gmail.com', '').replace(/[0-9]/g, '') : user?.displayName : localStorage.getItem('name')} aka! kiyinroq qayta urinib ko'ring!`, "Bugungi kunda menga beriloyotgan so'rovlar kopayib ketti kiyinroq urinib koring"];
+                const reqRandom = ["Obooo, yana sizmi", `Iltimos ${localStorage.getItem('name') === null ? user?.displayName === null ? user?.email?.replace('@gmail.com', '').replace(/[0-9]/g, '') : user?.displayName : localStorage.getItem('name')} aka! kiyinroq qayta urinib ko'ring!`, "Bugungi kunda menga berilayotgan so'ro'vlar ko'payib ketti, kiyinroq urinib ko'ring"];
                 const randomIndex = Math.floor(Math.random() * reqRandom.length);
                 setGptMessage(reqRandom[randomIndex]);
+                setCatchs(true)
             }
         };
 
@@ -184,11 +197,12 @@ function Dashboard() {
     }, [detectedVoice]);
     useEffect(() => {
         const launguageGptMessage = franc(GptMessage)
-        if (launguageGptMessage === 'uzn' || launguageGptMessage === "und") {
+        if (launguageGptMessage === 'uzn' || launguageGptMessage === "und" || catchs === true) {
 
         } else {
             setVoiceTrue(false)
-            setGptMessage("Savolingizga chunmadim qaytara olasizmi?")
+            setGptMessage("Savolingizga chunmadim qaytara olasizmi")
+
         }
 
 
@@ -204,7 +218,7 @@ function Dashboard() {
                     },
                     data: {
                         text: VoiceTrue === true ? replaceSymbols(MessageFromIF) : replaceSymbols(GptMessage),
-                        model: 'davron',
+                        model: 'dilfuza',
                     },
                 };
                 try {
@@ -277,7 +291,7 @@ function Dashboard() {
         const unsubscribe = onAuthStateChanged(auth, (user) => {
             if (user) {
                 setUser(user)
-                console.log(user);
+
             } else {
                 navigator("/login")
 
@@ -339,6 +353,7 @@ function Dashboard() {
 
                             <Typography className='AccountInfo' ml={1} >
                                 {user?.displayName === null ? user?.email?.replace('@gmail.com', '').replace(/[0-9]/g, '') : user?.displayName}
+                                <CheckCircle sx={{ fontSize: '12px', color: '#007bff', ml: '5px' }} />
                             </Typography>
                         </Box>
                         <Box mt={2} ml={2} display={"flex"} alignItems={"center"}>
@@ -347,8 +362,8 @@ function Dashboard() {
                                 <Switch {...label} checked={dark} onChange={ToggleDarkMode} />
                             </Typography>
                         </Box>
-                        <Box>
-                            <Button onClick={SignOutHandler} variant="outlined" className='AccountOutButton' color="error">
+                        <Box   marginTop={"110px"} display={"flex"} justifyContent={"center"}>
+                            <Button  onClick={SignOutHandler} variant="outlined" className='AccountOutButton' color="error">
                                 Akkauntdan Chiqish
                             </Button>
                         </Box>
