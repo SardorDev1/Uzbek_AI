@@ -9,8 +9,8 @@ import { auth } from '../config/firebase';
 import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
+import { franc } from 'franc';
 import '@fontsource/roboto/700.css';
-
 
 
 
@@ -34,6 +34,7 @@ function Dashboard() {
     const [MessageFromIF, setMessageFromIF] = useState('')
     const [VoiceTrue, setVoiceTrue] = useState(false)
     const [GptMessageiSDisplay, setGptMessageiSDisplay] = useState('')
+    const [GptMessageLaunguage, setGptMessageLaunguage] = useState('')
     const [dark, setDark] = useState(false);
     const audioRef = useRef(null);
     const label = { inputProps: { 'aria-label': 'Switch demo' } };
@@ -144,31 +145,27 @@ function Dashboard() {
 
             const options = {
                 method: 'POST',
-                url: 'https://chatgpt-chatgpt3-5-chatgpt4.p.rapidapi.com/v1/chat/completions',
+                url: 'https://chatgpt-api8.p.rapidapi.com/',
                 headers: {
-                  'content-type': 'application/json',
-                  'X-RapidAPI-Key': '0a0c0a24c2msh5bec3f133a111f2p1876cajsnd92a500a2381',
-                  'X-RapidAPI-Host': 'chatgpt-chatgpt3-5-chatgpt4.p.rapidapi.com'
+                    'content-type': 'application/json',
+                    'X-RapidAPI-Key': '338be19902mshc80180f0026f9eep1a50f0jsn14646f3ebe1c',
+                    'X-RapidAPI-Host': 'chatgpt-api8.p.rapidapi.com'
                 },
-                data: {
-                    model: 'gpt-3.5-turbo',
-                    messages: [
-                        {
-                            role: 'user',
-                            content: detectedVoice,
-                        },
+                // 338be19902mshc80180f0026f9eep1a50f0jsn14646f3ebe1c
+                data: [
+                    {
+                        content: detectedVoice,
+                        role: 'user',
+                    },
 
-                    ],
-
-                    temperature: 0.8,
-                },
+                ],
             };
 
             setIsLoading(true)
 
             try {
                 const response = await axios.request(options);
-                const assistantVoice = response.data.choices?.[0].message.content;
+                const assistantVoice = response.data.text;
                 console.log(assistantVoice);
                 setIsLoading(false)
                 setGptMessage(assistantVoice);
@@ -186,6 +183,15 @@ function Dashboard() {
 
     }, [detectedVoice]);
     useEffect(() => {
+        const launguageGptMessage = franc(GptMessage)
+        if (launguageGptMessage === 'uzn' || launguageGptMessage === "und") {
+
+        } else {
+            setVoiceTrue(false)
+            setGptMessage("Savolingizga chunmadim qaytara olasizmi?")
+        }
+
+
         const voiceFetchData = async () => {
             if (GptMessage !== '' && detectedVoice !== '') {
                 setIsLoading(true);
