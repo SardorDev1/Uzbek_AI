@@ -14,7 +14,7 @@ import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { ExitToApp } from '@mui/icons-material';
 import { useState } from 'react';
-import { signInWithEmailAndPassword  } from 'firebase/auth';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 // TODO remove, this demo shouldn't need to reset the theme.
 import { auth } from '../config/firebase';
 
@@ -23,27 +23,42 @@ const defaultTheme = createTheme();
 
 
 export default function SignIn() {
-
-    const [email, setEmail] = useState('')
-    const [password, setPassword] = useState('')
+    const [user, setUser] = useState(null)
+    const [error, sertError] = useState(null)
+    const [email, setEmail] = useState(null)
+    const [password, setPassword] = useState(null)
     const navigate = useNavigate()
 
     const SignInHandler = async (e) => {
 
 
         e.preventDefault();
-        try {
-            const userCredential = await signInWithEmailAndPassword(auth, email, password);
-            // Signed in 
-        
-            navigate('/')
-            // ...
-        } catch (error) {
-            const errorCode = error.code;
-            const errorMessage = error.message;
-            // Handle error
-            console.log(errorCode, errorMessage);
+        if (user === null || email === null || password === null) {
+            sertError("qolib ketgan bo'shliqlarni to'ldirishingiz kerak!");
+        } else {
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                // Signed in 
+                localStorage.setItem('name', user)
+                navigate('/')
+                // ...
+            } catch (error) {
+
+                // Handle error
+                if (error.message === 'Firebase: Error (auth/email-already-in-use).') {
+                    sertError("hisob allaqachon ro'yhatdan o'tgan");
+                } else if (error.message === 'Firebase: Error (auth/invalid-email).') {
+                    sertError("noto'g'ri email");
+                } else if (error.message === 'Firebase: Error (auth/wrong-password).') {
+                    sertError("parol noto'g'ri");
+
+                } else if (error.message === 'Firebase: Access to this account has been temporarily disabled due to many failed login attempts. You can immediately restore it by resetting your password or you can try again later. (auth/too-many-requests).') {
+                    sertError("siz ushbu hisobdan kop bora omadsiz kirishlar bo'ldi hisob bloklandi");
+
+                }
+            }
         }
+
     };
 
 
@@ -95,6 +110,18 @@ export default function SignIn() {
                                     margin="normal"
                                     required
                                     fullWidth
+                                    id="text"
+                                    onChange={(e) => setUser(e.target.value)}
+
+                                    label="Ismingiz"
+                                    name="name"
+                                    autoComplete="text"
+                                    autoFocus
+                                />
+                                <TextField
+                                    margin="normal"
+                                    required
+                                    fullWidth
                                     id="email"
                                     onChange={(e) => setEmail(e.target.value)}
 
@@ -125,8 +152,9 @@ export default function SignIn() {
                                     variant="contained"
                                     sx={{ mt: 3, mb: 2 }}
                                 >
-                                    Ro'yhatdan O'tish
+                                    Kirish
                                 </Button>
+                                <p style={{ textAlign: "center", color: "red", marginTop: "10px", marginBottom: "10px" }}>{error === null ? '' : error}</p>
                                 <Grid container>
 
                                     <Grid item>

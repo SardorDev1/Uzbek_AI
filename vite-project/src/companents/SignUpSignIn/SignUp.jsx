@@ -23,29 +23,43 @@ const defaultTheme = createTheme();
 
 
 export default function SignUp() {
-    const [name, setName] = useState('')
-    const [fullname, setFullname] = useState('')
-    const [email, setEmail] = useState('')
-    const [password, setPassword] = useState('')
+    const [name, setName] = useState(null)
+    const [fullname, setFullname] = useState(null)
+    const [error, sertError] = useState(null)
+    const [email, setEmail] = useState(null)
+    const [password, setPassword] = useState(null)
     const navigate = useNavigate()
 
     const SignUpHandler = async (e) => {
-
-        localStorage.setItem('fullname', fullname)
-        localStorage.setItem('name', name)
         e.preventDefault();
-        try {
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            // Signed in 
 
 
-            navigate('/')
-            // ...
-        } catch (error) {
-            const errorCode = error.code;
-            const errorMessage = error.message;
-            // Handle error
-            console.log(errorCode, errorMessage);
+        if (name === null || fullname === null || email === null || password === null) {
+            sertError("qolib ketgan bo'shliqlarni to'ldirishingiz kerak!");
+
+        } else {
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                // Signed in 
+                localStorage.setItem('fullname', fullname)
+                localStorage.setItem('name', name)
+
+                navigate('/')
+                // ...
+            } catch (error) {
+                if (error.message === 'Firebase: Error (auth/email-already-in-use).') {
+                    sertError("hisob allaqachon ro'yhatdan o'tgan");
+                } else if (error.message === 'Firebase: Error (auth/invalid-email).') {
+                    sertError("noto'g'ri email");
+                } else if (error.message === 'auth/weak-password Firebase: Password should be at least 6 characters (auth/weak-password).') {
+                    sertError("parol kamida 6ta so'z , raqam yoki simvoldan iborat bo'lishi kerak");
+
+                } else {
+                    sertError("hisobda kirishda xatolik bo'ldi");
+
+                }
+
+            }
         }
     };
 
@@ -151,6 +165,7 @@ export default function SignUp() {
                                 >
                                     Ro'yhatdan O'tish
                                 </Button>
+                                <p style={{ textAlign: "center", color: "red", marginTop: "10px", marginBottom: "10px" }}>{error === null ? '' : error}</p>
                                 <Grid container>
 
                                     <Grid item>

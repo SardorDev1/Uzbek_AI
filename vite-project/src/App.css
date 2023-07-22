@@ -177,3 +177,28 @@
 .AccountOutButton:hover{
     background-color: rgb(255, 0, 0);
 }
+.BoxDetectedVoice .DetectedVoice{
+padding-top: 10px;
+}
+.AssistantGender{
+    width: 125px;
+    font-size: 16px;
+    height: 30px;
+    outline: none ;
+    border-radius: 5px;
+    border: none !important;
+}
+ .asssistantGenderh2{
+ font-family: Arial, Helvetica, sans-serif;
+ font-weight: 400;
+    font-size: 16px;
+margin-bottom: 5px;
+}
+.dark  .asssistantGenderh2{
+    color: white;
+}
+.dark .AssistantGender{
+    color: #e7e7e7;
+    background-color: #3b3b3b;
+
+}

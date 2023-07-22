@@ -1,10 +1,10 @@
 import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
-import { Avatar, Box, Card, CircularProgress, IconButton, Switch, Typography } from "@mui/material"
-import { Close, VerifiedUser, KeyboardVoice  , CheckCircle} from "@mui/icons-material"
+import { Avatar, Box, Card, CircularProgress, FormControl, IconButton, InputLabel, MenuItem, Select, Switch, Typography } from "@mui/material"
+import { Close, VerifiedUser, KeyboardVoice, CheckCircle } from "@mui/icons-material"
 import { Grow, Slide, Fade, Snackbar, Button } from '@mui/material';
 import "../../App.css"
-import { onAuthStateChanged, signOut  } from 'firebase/auth'
+import { onAuthStateChanged, signOut } from 'firebase/auth'
 import { auth } from '../config/firebase';
 import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
@@ -26,15 +26,17 @@ function Dashboard() {
     const [detectedVoice, setDetectedVoice] = useState('');
     const [isRecognizing, setIsRecognizing] = useState(false);
     const [assistantVoiceContent, setAssistantVoiceContent] = useState('');
+    const [Assistantgender, setAssistantgender] = useState('dilfuza');
     const [GptMessage, setGptMessage] = useState('');
     const [account, setAccount] = useState(false)
     const [displayText, setDisplayText] = useState('');
+    const [checked, setChecked] = useState(false)
     const [isAssistantVoiceReady, setIsAssistantVoiceReady] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [MessageFromIF, setMessageFromIF] = useState('')
     const [VoiceTrue, setVoiceTrue] = useState(false)
     const [GptMessageiSDisplay, setGptMessageiSDisplay] = useState('')
-    
+
     const [catchs, setCatchs] = useState(false)
     const [GptMessageLaunguage, setGptMessageLaunguage] = useState('')
     const [dark, setDark] = useState(false);
@@ -76,7 +78,8 @@ function Dashboard() {
         setDark(!dark);
     };
     const TogglShowAccount = () => {
-        setAccount(true);
+        setAccount((prev) => !prev);
+        setChecked((prev) => !prev);
     };
     const toggleRecognition = () => {
         if (isRecognizing) {
@@ -104,11 +107,11 @@ function Dashboard() {
             detectedVoice === 'salomat'
         ) {
             setMessageFromIF(``)
-            const reqRandom = ["Vo alekum Assalom", `Assalomu Aleykum! ${localStorage.getItem('name') === null ? user?.displayName === null ? user?.email?.replace('@gmail.com', '').replace(/[0-9]/g, '') : user?.displayName : localStorage.getItem('name')}! sizga qanday yordam berishim mumkin?`, "Assalomu Aleykum! , ko'nglingiz nima hoxlaydi!", `Assalom Aleykum! amringizga muntazirman ${localStorage.getItem('name') === null ? user?.displayName === null ? user?.email?.replace('@gmail.com', '').replace(/[0-9]/g, '') : user?.displayName : localStorage.getItem('name')}!!!`];
+            const reqRandom = ["Vo alekum Assalom", `Assalomu Aleykum! ${localStorage.getItem('name') === null ? user?.displayName === null ? user?.email?.replace('@gmail.com', '').replace(/[0-9]/g, '') : user?.displayName : localStorage.getItem('name')} aka! sizga qanday yordam berishim mumkin?`, "Assalomu Aleykum!, ko'nglingiz nima hoxlaydi!", `Assalom Aleykum! amringizga muntazirman ${localStorage.getItem('name') === null ? user?.displayName === null ? user?.email?.replace('@gmail.com', '').replace(/[0-9]/g, '') : user?.displayName : localStorage.getItem('name')} aka!!!`];
             const randomIndex = Math.floor(Math.random() * reqRandom.length);
             setGptMessage(reqRandom[randomIndex]);
             setMessageFromIF(reqRandom[randomIndex])
-    
+
             setVoiceTrue(true)
         } else if (
             detectedVoice === 'rahmat senga' ||
@@ -126,7 +129,7 @@ function Dashboard() {
             detectedVoice === 'rahmat sog bol' ||
             detectedVoice === 'tashakur sog bol'
         ) {
-            const reqRandom = ["Sog' bo'ling, meni ishlatganingizdan hursandman", `Sizga ham rahmat ${localStorage.getItem('name') === null ? user?.displayName === null ? user?.email?.replace('@gmail.com', '').replace(/[0-9]/g, '') : user?.displayName : localStorage.getItem('name')}!, sizga yordam berganimdan hursandman`, "Bugungi kun uchun sizga rahmat!", "Salomat Bo'ling, sizga ham katta rahmat meni ishlatganingiz uchun"];
+            const reqRandom = ["Sog' bo'ling, meni ishlatganingizdan hursandman", `Sizga ham rahmat ${localStorage.getItem('name') === null ? user?.displayName === null ? user?.email?.replace('@gmail.com', '').replace(/[0-9]/g, '') : user?.displayName : localStorage.getItem('name')} aka!, sizga yordam berganimdan hursandman`, "Bugungi kun uchun sizga rahmat!", "Salomat Bo'ling, sizga ham katta rahmat meni ishlatganingiz uchun"];
             const randomIndex = Math.floor(Math.random() * reqRandom.length);
             setGptMessage(reqRandom[randomIndex]);
             setMessageFromIF(reqRandom[randomIndex])
@@ -147,7 +150,7 @@ function Dashboard() {
             detectedVoice === 'va aleykum assalom'
 
         ) {
-            const reqRandom = ["Menga qanday savolingiz bor?", `menga qanday savolingiz bor? ${localStorage.getItem('name') === null ? user?.displayName === null ? user?.email?.replace('@gmail.com', '').replace(/[0-9]/g, '') : user?.displayName : localStorage.getItem('name')}`, "Savolingiz bormi?", "Savollar bo'sa bemalol"];
+            const reqRandom = ["Menga qanday savolingiz bor?", `menga qanday savolingiz bor? ${localStorage.getItem('name') === null ? user?.displayName === null ? user?.email?.replace('@gmail.com', '').replace(/[0-9]/g, '') : user?.displayName : localStorage.getItem('name')} aka`, "Savolingiz bormi?", "Savollar bo'sa bemalol"];
             const randomIndex = Math.floor(Math.random() * reqRandom.length);
             setGptMessage(reqRandom[randomIndex]);
             setMessageFromIF(reqRandom[randomIndex])
@@ -184,7 +187,7 @@ function Dashboard() {
 
             } catch (error) {
                 console.error(error);
-                const reqRandom = ["Obooo, yana sizmi", `Iltimos ${localStorage.getItem('name') === null ? user?.displayName === null ? user?.email?.replace('@gmail.com', '').replace(/[0-9]/g, '') : user?.displayName : localStorage.getItem('name')} aka! kiyinroq qayta urinib ko'ring!`, "Bugungi kunda menga berilayotgan so'ro'vlar ko'payib ketti, kiyinroq urinib ko'ring"];
+                const reqRandom = ["Obooo, yana sizmi", `Iltimos ${localStorage.getItem('name') === null ? user?.displayName === null ? user?.email?.replace('@gmail.com', '').replace(/[0-9]/g, '') : user?.displayName : localStorage.getItem('name')}  aka! kiyinroq qayta urinib ko'ring!`, "Tarmoqda Nosozlik yuzaga keldi, Iltimos qayta urinib ko'ring!"];
                 const randomIndex = Math.floor(Math.random() * reqRandom.length);
                 setGptMessage(reqRandom[randomIndex]);
                 setCatchs(true)
@@ -218,7 +221,7 @@ function Dashboard() {
                     },
                     data: {
                         text: VoiceTrue === true ? replaceSymbols(MessageFromIF) : replaceSymbols(GptMessage),
-                        model: 'dilfuza',
+                        model: Assistantgender,
                     },
                 };
                 try {
@@ -338,36 +341,65 @@ function Dashboard() {
             // An error happened.
         });
     }
+
+
+
+
+    const handleChangeAssistantGender = (e) => {
+        if (e.target.value === 'erkak') {
+            setAssistantgender('davron')
+        }
+        else {
+            setAssistantgender('dilfuza')
+        }
+    };
+
+
+
+
     return (
         <>
             <section className={dark === true ? 'App dark' : 'App'} >
 
                 <div className='Account'>
                     <Avatar onClick={TogglShowAccount} style={{ width: '50px', height: '50px' }} src={(<VerifiedUser className='AccountLogo' />)} />
-                    <div className='Account_Bar' style={{ width: '250px', height: '300px', borderRadius: "20px", position: 'absolute', backgroundColor: 'rgb(231, 231, 231)', display: account === false ? 'none' : 'block' }}>
-                        <IconButton sx={{ position: 'absolute', right: '10px', top: '10px' }} onClick={() => setAccount(false)}>
-                            <Close className='AccountClose' />
-                        </IconButton>
-                        <Box mt={5} ml={1} display={"flex"} alignItems={"center"}>
-                            <Avatar onClick={TogglShowAccount} style={{ width: '50px', height: '50px' }} src={<VerifiedUser className='AccountLogo' />} />
+                    <Grow in={checked}>
+                        <div className='Account_Bar' style={{ width: '250px', height: '300px', borderRadius: "20px", position: 'absolute', backgroundColor: 'rgb(231, 231, 231)', display: account === false ? 'none' : 'block' }}>
+                            <IconButton sx={{ position: 'absolute', right: '10px', top: '10px' }} onClick={TogglShowAccount}>
+                                <Close className='AccountClose' />
+                            </IconButton>
+                            <Box mt={5} ml={1} display={"flex"} alignItems={"center"}>
+                                <Avatar onClick={TogglShowAccount} style={{ width: '50px', height: '50px' }} src={<VerifiedUser className='AccountLogo' />} />
 
-                            <Typography className='AccountInfo' ml={1} >
-                                {user?.displayName === null ? user?.email?.replace('@gmail.com', '').replace(/[0-9]/g, '') : user?.displayName}
-                                <CheckCircle sx={{ fontSize: '12px', color: '#007bff', ml: '5px' }} />
-                            </Typography>
-                        </Box>
-                        <Box mt={2} ml={2} display={"flex"} alignItems={"center"}>
-                            <Typography className='AccountMode'>
-                                Dark Mode
-                                <Switch {...label} checked={dark} onChange={ToggleDarkMode} />
-                            </Typography>
-                        </Box>
-                        <Box   marginTop={"110px"} display={"flex"} justifyContent={"center"}>
-                            <Button  onClick={SignOutHandler} variant="outlined" className='AccountOutButton' color="error">
-                                Akkauntdan Chiqish
-                            </Button>
-                        </Box>
-                    </div>
+                                <Typography className='AccountInfo' ml={1} >
+                                    {user?.displayName === null ? user?.email?.replace('@gmail.com', '').replace(/[0-9]/g, '') : user?.displayName}
+                                    <CheckCircle sx={{ fontSize: '12px', color: '#007bff', ml: '5px' }} />
+                                </Typography>
+                            </Box>
+                            <Box mt={2} ml={2} display={"flex"} alignItems={"center"}>
+                                <Typography className='AccountMode'>
+                                    Tun rijimi
+                                    <Switch {...label} checked={dark} onChange={ToggleDarkMode} />
+                                </Typography>
+                            </Box>
+                            <Box ml={2} mt={1} >
+                                <h2 className='asssistantGenderh2'>Assistant ovozi:</h2>
+                                <form onChange={handleChangeAssistantGender}>
+                                    <select onChange={handleChangeAssistantGender} className='AssistantGender'>
+                                        <h2>Assistant ovozi</h2>
+                                        <option >Ayol</option>
+                                        <option >erkak</option>
+                                    </select>
+
+                                </form>
+                            </Box>
+                            <Box marginTop={"50px"} display={"flex"} justifyContent={"center"}>
+                                <Button onClick={SignOutHandler} variant="outlined" className='AccountOutButton' color="error">
+                                    Akkauntdan Chiqish
+                                </Button>
+                            </Box>
+                        </div>
+                    </Grow>
                 </div>
 
 
@@ -405,7 +437,9 @@ function Dashboard() {
                                                     <Close className='CloseDetectedVoice' />
 
                                                 </div>
-                                                <p className='DetectedVoice' >{GptMessageiSDisplay}</p>
+                                                <Box mt={1}>
+                                                    <p className='DetectedVoice' >{GptMessageiSDisplay}</p>
+                                                </Box>
                                             </div>
                                         </div>
                                     </>
