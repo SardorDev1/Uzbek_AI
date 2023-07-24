@@ -10,17 +10,17 @@
 @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
 
 .WrapDetectedVoice {
+   
     display: flex;
     justify-content: center;
 }
 
 .BoxDetectedVoice {
-    max-width: 600px;
+    max-width: 100% !important;
     min-height: 100%;
     padding: 20px;
     background-color: rgb(231, 231, 231);
 
-    margin: 20px;
     margin-top: 100px;
     border-radius: 20px;
 
@@ -42,6 +42,18 @@
     .BoxDetectedVoice .CloseDetectedVoice {
         font-size: 20px !important;
     }
+
+   .BoxDetectedVoice .Musics{
+    max-width: 290px;
+    width: 100%;
+margin-top: 5px;
+margin-bottom: 5px;
+
+   }
+   .BoxDetectedVoice .DetectedVoices{
+    font-size: 12px !important;
+    padding-top: 10px;
+   }
 }
 
 .App {
@@ -63,7 +75,8 @@
 .Account {
     display: flex;
     justify-content: end;
-
+    position: relative;
+z-index: 1000000 !important;
     border-radius: 20px;
     padding: 10px;
 }
@@ -214,3 +227,40 @@
     background-color: #3b3b3b;
 
 }
+
+
+
+.dark .Musics {
+    background-color: #3b3b3b;
+    border: none;
+}
+
+.dark .Musics::-webkit-media-controls-panel {
+    background-color: #d5d5d5 ;
+
+}
+.wrap_audioCard{
+
+    background-color: #f2f2f2;
+
+    border-radius: 20px;
+}
+.dark .wrap_audioCard{
+    background-color: #3b3b3b;
+}
+.dark .Musics::-webkit-media-controls-panel {
+    color: white; /* For Chrome, Safari, and newer versions of Edge */
+  }
+  
+  .dark .Musics::-webkit-media-controls {
+    background-color: #333; /* For Chrome, Safari, and newer versions of Edge */
+  }
+  .Musics{
+    width: 100%;
+
+  }
+  .DetectedVoices{
+    padding-top: 10px;
+    padding-left: 10px;
+  }
+  

@@ -223,13 +223,18 @@ function Dashboard() {
             detectedVoice === "musiqa qoʻyvor" ||
             detectedVoice === "musiqa qoya olasanmi" ||
             detectedVoice === "musiqa qoʻya olasanmi" ||
-            detectedVoice === "myuzik qoyvor" ||
-            detectedVoice === "qo'shiq qoy" ||
-            detectedVoice === "ashula qo'yib ber" ||
-            detectedVoice === "taronalar"
-
+            detectedVoice === "qoʻshiqlar" ||
+            detectedVoice === "taronalar" ||
+            detectedVoice === "qoshiqlar" ||
+            detectedVoice === "ashulalar roʻyxati" ||
+            detectedVoice === "taronalar royxati" ||
+            detectedVoice === "qoʻshiqlar royxati" ||
+            detectedVoice === "musiqa qoy" ||
+            detectedVoice === "musiqa" ||
+            detectedVoice === "ashula" ||
+            detectedVoice === "tarona"
         ) {
-            const reqRandom = "Yaxshi, qanday qo'shiq eshitmoqchisiz menda faqat shular!"
+            const reqRandom = "Yaxshi, qanday qo'shiq eshitmoqchisiz menda hozircha faqat shular!"
 
             setGptMessage(reqRandom);
             setMessageFromIF(reqRandom)
@@ -441,7 +446,10 @@ function Dashboard() {
 
 
 
-
+    function removeRepeatedUnderscores(text) {
+        const regex = /_/g;
+        return text.replace(regex, ' ');
+    }
     return (
         <>
             <section className={dark === true ? 'App dark' : 'App'} >
@@ -517,30 +525,35 @@ function Dashboard() {
                                 <audio ref={audioRef} id="audioPlayer" src={assistantVoiceContent} autoPlay />
                                 {GptMessageiSDisplay === '' ? (<></>) : (
                                     <>
-                                        <div className='WrapDetectedVoice' >
+                                        <Grow in={true}>
+                                            <div className='WrapDetectedVoice' >
 
-                                            <div className='BoxDetectedVoice'  >
-                                                <div onClick={() => setGptMessageiSDisplay('')} >
-                                                    <Close className='CloseDetectedVoice' />
+                                                <div className='BoxDetectedVoice'  >
+                                                    <div onClick={() => setGptMessageiSDisplay('')} >
+                                                        <Close className='CloseDetectedVoice' />
 
-                                                </div>
-                                                <Box mt={1}>
-                                                    {GptMessageiSDisplay === "Yaxshi, qanday qo'shiq eshitmoqchisiz menda faqat shular!" ? (
-                                                        <>
+                                                    </div>
+                                                    <Box mt={1}   >
+                                                        {GptMessageiSDisplay === "Yaxshi, qanday qo'shiq eshitmoqchisiz menda hozircha faqat shular!" ? (
+                                                            <>
+                                                                <p className='DetectedVoice' >{GptMessageiSDisplay}</p>
+                                                                {MusicUrls.map((list, num) => (
+                                                                    <>
+                                                                        <div className="wrap_audioCard">
+                                                                            <p style={{ fontSize: "16px" }} className='DetectedVoices' >{num + 1}) {removeRepeatedUnderscores(list.name)}</p>
+                                                                            <audio  type="audio/mpeg" className='Musics' src={list.url} controls ></audio>
+                                                                        </div>
+                                                                    </>
+                                                                ))}
+                                                            </>
+                                                        ) : (
                                                             <p className='DetectedVoice' >{GptMessageiSDisplay}</p>
-                                                            {MusicUrls.map((list, num) => (
-                                                                <>
-                                                                    <p className='DetectedVoice' >{num} {list.name}</p>
-                                                                    <audio src={list.url} controls ></audio>
-                                                                </>
-                                                            ))}
-                                                        </>
-                                                    ) : (
-                                                        <p className='DetectedVoice' >{GptMessageiSDisplay}</p>
-                                                    )}
-                                                </Box>
+                                                        )}
+                                                    </Box>
+                                                </div>
                                             </div>
-                                        </div>
+
+                                        </Grow>
                                     </>
                                 )
                                 }
@@ -553,8 +566,6 @@ function Dashboard() {
 
 
             </section >
-
-
 
 
 
