@@ -22,8 +22,11 @@ export default function App() {
 
     return () => unsubscribe();
   }, []);
+  console.log("%cSardorDev", "color: blue; font-famely:monospace; font-size: 40px; font-weight: bold;", 'tomonidan yaratildi');
+
   return (
     <>
+    
       <Routes>
         <Route path='/signup' element={<SignUp />} />
         <Route path='/' element={<Dashboard />} />

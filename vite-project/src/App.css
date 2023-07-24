@@ -128,23 +128,26 @@
 .MicrophoneButtonOn {
     animation: animationOnMicrophone 1s infinite;
 }
-.MicrophoneIcon{
+
+.MicrophoneIcon {
     color: rgb(50, 50, 50);
     font-size: 50px !important;
     cursor: pointer;
 }
+
 .dark #MicrophoneButton {
     background-color: #242424;
 
 }
-.dark .MicrophoneIcon{
+
+.dark .MicrophoneIcon {
     color: #e7e7e7;
 }
 
 @keyframes animationOnMicrophone {
     0% {
         transform: scale(1.3);
-    
+
     }
 
     50% {
@@ -154,10 +157,11 @@
     100% {
         transform: scale(1.3);
     }
-    
+
 
 }
-.DetectedTextData{
+
+.DetectedTextData {
     text-align: center;
     margin-top: 20px;
     margin-bottom: 20px;
@@ -166,38 +170,46 @@
     color: #3b3b3b;
 
 }
-.dark .DetectedTextData{
+
+.dark .DetectedTextData {
     color: #e7e7e7;
 }
-.AccountOutButton{
+
+.AccountOutButton {
     margin: auto;
     background-color: red !important;
     color: white !important;
 }
-.AccountOutButton:hover{
+
+.AccountOutButton:hover {
     background-color: rgb(255, 0, 0);
 }
-.BoxDetectedVoice .DetectedVoice{
-padding-top: 10px;
+
+.BoxDetectedVoice .DetectedVoice {
+    padding-top: 10px;
 }
-.AssistantGender{
+
+.AssistantGender {
     width: 125px;
     font-size: 16px;
     height: 30px;
-    outline: none ;
+    outline: none;
     border-radius: 5px;
     border: none !important;
 }
- .asssistantGenderh2{
- font-family: Arial, Helvetica, sans-serif;
- font-weight: 400;
+
+.asssistantGenderh2 {
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: 400;
     font-size: 16px;
-margin-bottom: 5px;
+    margin-bottom: 5px;
 }
-.dark  .asssistantGenderh2{
+
+.dark .asssistantGenderh2 {
     color: white;
 }
-.dark .AssistantGender{
+
+.dark .AssistantGender {
     color: #e7e7e7;
     background-color: #3b3b3b;
 

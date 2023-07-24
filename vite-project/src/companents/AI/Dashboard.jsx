@@ -12,6 +12,8 @@ import '@fontsource/roboto/500.css';
 import { franc } from 'franc';
 import '@fontsource/roboto/700.css';
 
+import { ref, listAll, getDownloadURL } from 'firebase/storage';
+import { storage } from '../config/firebase';
 
 
 function GrowTransition(props) {
@@ -22,6 +24,8 @@ function GrowTransition(props) {
 
 function Dashboard() {
 
+    const [MusicUrls, setMusicUrls] = useState([]);
+    const MusicListRef = ref(storage);
 
     const [detectedVoice, setDetectedVoice] = useState('');
     const [isRecognizing, setIsRecognizing] = useState(false);
@@ -40,6 +44,7 @@ function Dashboard() {
     const [catchs, setCatchs] = useState(false)
     const [GptMessageLaunguage, setGptMessageLaunguage] = useState('')
     const [dark, setDark] = useState(false);
+    const [musicList, setMusicList] = useState([])
     const audioRef = useRef(null);
     const label = { inputProps: { 'aria-label': 'Switch demo' } };
 
@@ -68,7 +73,40 @@ function Dashboard() {
             .replace(/ʼ/g, "'");
     }
 
+    useEffect(() => {
+        listAll(MusicListRef)
+            .then((response) => {
+                // Barcha fayllar uchun URL lar to'plamini saqlash uchun ro'yxat
+                const urls = response.items.map((itemRef) => {
+                    // Fayl nomini olish
+                    const fileName = itemRef.name;
 
+                    return getDownloadURL(itemRef)
+                        .then((url) => {
+                            return { name: fileName, url: url };
+                        })
+                        .catch((error) => {
+                            console.error('Error getting download URL:', error);
+                            return null;
+                        });
+                });
+
+
+                // Hamma URL lar ishlangandan keyin state ni yangilash
+                Promise.all(urls)
+                    .then((downloadUrls) => {
+                        setMusicUrls(downloadUrls.filter((item) => item !== null));
+                    })
+                    .catch((error) => {
+                        console.error('Error getting download URLs:', error);
+                    });
+            })
+            .catch((error) => {
+                console.error('Error listing files:', error);
+            });
+    }, []);
+
+    console.log(MusicUrls);
     const stopRecognition = () => {
         setIsRecognizing(false);
         setDetectedVoice('');
@@ -155,46 +193,90 @@ function Dashboard() {
             setGptMessage(reqRandom[randomIndex]);
             setMessageFromIF(reqRandom[randomIndex])
             setVoiceTrue(true)
-        }
-        const GptfetchData = async () => {
+        } else if (
+            detectedVoice === 'qolingdan nima keladi' ||
+            detectedVoice === 'qolingizdan nima keladi' ||
+            detectedVoice === 'qulingdan nima keladi' ||
+            detectedVoice === 'qulingizdan nima keladi' ||
+            detectedVoice === 'nima qila olasan' ||
+            detectedVoice === 'nima qilolasan' ||
+            detectedVoice === 'nimalar qila olasan' ||
+            detectedVoice === 'nimalar qilolasan' ||
+            detectedVoice === 'nimalar qilishing mumkin' ||
+            detectedVoice === 'nima qilishing mumkin' ||
+            detectedVoice === 'nima qilishni bilasan' ||
+            detectedVoice === 'nima qilish  qolingdan keladi'
 
-            const options = {
-                method: 'POST',
-                url: 'https://chatgpt-api8.p.rapidapi.com/',
-                headers: {
-                    'content-type': 'application/json',
-                    'X-RapidAPI-Key': '338be19902mshc80180f0026f9eep1a50f0jsn14646f3ebe1c',
-                    'X-RapidAPI-Host': 'chatgpt-api8.p.rapidapi.com'
-                },
-                // 338be19902mshc80180f0026f9eep1a50f0jsn14646f3ebe1c
-                data: [
-                    {
-                        content: detectedVoice,
-                        role: 'user',
+        ) {
+            const reqRandom = "Suxbatlashish bo'lsa bemalol vaa savollarga javob berishim mumkin, malum vazifalar qilishim mumkin"
+
+            setGptMessage(reqRandom);
+            setMessageFromIF(reqRandom)
+            setVoiceTrue(true)
+        } else if (
+            detectedVoice === "musiqa qoy" ||
+            detectedVoice === "qoʻshiq qoʻy" ||
+            detectedVoice === "qoshoq" ||
+            detectedVoice === "qoʻshiq qoyvor" ||
+            detectedVoice === "qoʻshiq qo'yvor" ||
+            detectedVoice === "musiqa qo'yvor" ||
+            detectedVoice === "musiqa qoʻyvor" ||
+            detectedVoice === "musiqa qoya olasanmi" ||
+            detectedVoice === "musiqa qoʻya olasanmi" ||
+            detectedVoice === "myuzik qoyvor" ||
+            detectedVoice === "qo'shiq qoy" ||
+            detectedVoice === "ashula qo'yib ber" ||
+            detectedVoice === "taronalar"
+
+        ) {
+            const reqRandom = "Yaxshi, qanday qo'shiq eshitmoqchisiz menda faqat shular!"
+
+            setGptMessage(reqRandom);
+            setMessageFromIF(reqRandom)
+            setVoiceTrue(true)
+        } else {
+            const GptfetchData = async () => {
+
+                const options = {
+                    method: 'POST',
+                    url: 'https://chatgpt-api8.p.rapidapi.com/',
+                    headers: {
+                        'content-type': 'application/json',
+                        'X-RapidAPI-Key': '338be19902mshc80180f0026f9eep1a50f0jsn14646f3ebe1c',
+                        'X-RapidAPI-Host': 'chatgpt-api8.p.rapidapi.com'
                     },
+                    // 338be19902mshc80180f0026f9eep1a50f0jsn14646f3ebe1c
+                    data: [
+                        {
+                            content: detectedVoice,
+                            role: 'user',
+                        },
 
-                ],
+                    ],
+                };
+
+                setIsLoading(true)
+
+                try {
+                    const response = await axios.request(options);
+                    const assistantVoice = response.data.text;
+                    console.log(assistantVoice);
+                    setIsLoading(false)
+                    setGptMessage(assistantVoice);
+
+                } catch (error) {
+                    console.error(error);
+                    const reqRandom = ["Obooo, yana sizmi", `Iltimos ${localStorage.getItem('name') === null ? user?.displayName === null ? user?.email?.replace('@gmail.com', '').replace(/[0-9]/g, '') : user?.displayName : localStorage.getItem('name')}  aka! kiyinroq qayta urinib ko'ring!`, "Tarmoqda Nosozlik yuzaga keldi, Iltimos qayta urinib ko'ring!"];
+                    const randomIndex = Math.floor(Math.random() * reqRandom.length);
+                    setGptMessage(reqRandom[randomIndex]);
+                    setCatchs(true)
+                }
             };
+            GptfetchData();
+        }
+        console.log(musicList);
 
-            setIsLoading(true)
 
-            try {
-                const response = await axios.request(options);
-                const assistantVoice = response.data.text;
-                console.log(assistantVoice);
-                setIsLoading(false)
-                setGptMessage(assistantVoice);
-
-            } catch (error) {
-                console.error(error);
-                const reqRandom = ["Obooo, yana sizmi", `Iltimos ${localStorage.getItem('name') === null ? user?.displayName === null ? user?.email?.replace('@gmail.com', '').replace(/[0-9]/g, '') : user?.displayName : localStorage.getItem('name')}  aka! kiyinroq qayta urinib ko'ring!`, "Tarmoqda Nosozlik yuzaga keldi, Iltimos qayta urinib ko'ring!"];
-                const randomIndex = Math.floor(Math.random() * reqRandom.length);
-                setGptMessage(reqRandom[randomIndex]);
-                setCatchs(true)
-            }
-        };
-
-        GptfetchData();
         setAssistantVoiceContent(null);
 
     }, [detectedVoice]);
@@ -202,12 +284,12 @@ function Dashboard() {
         const launguageGptMessage = franc(GptMessage)
         if (launguageGptMessage === 'uzn' || launguageGptMessage === "und" || catchs === true) {
 
-        } else {
+        } else if (launguageGptMessage === 'eng' || launguageGptMessage === 'rus' || launguageGptMessage === 'arb' || launguageGptMessage === "tur") {
             setVoiceTrue(false)
             setGptMessage("Savolingizga chunmadim qaytara olasizmi")
 
         }
-
+        console.log(launguageGptMessage);
 
         const voiceFetchData = async () => {
             if (GptMessage !== '' && detectedVoice !== '') {
@@ -249,7 +331,10 @@ function Dashboard() {
     const isAudioPlaying = useRef(false);
 
     useEffect(() => {
+
+
         setGptMessageiSDisplay(VoiceTrue === true ? MessageFromIF : GptMessage)
+
         function handleAudioEnd() {
             setDetectedVoice('')
 
@@ -362,9 +447,9 @@ function Dashboard() {
             <section className={dark === true ? 'App dark' : 'App'} >
 
                 <div className='Account'>
-                    <Avatar onClick={TogglShowAccount} style={{ width: '50px', height: '50px' }} src={(<VerifiedUser className='AccountLogo' />)} />
+                    <Avatar onClick={TogglShowAccount} style={{ width: '50px', height: '50px' }} className='AccountLogo' src={null} alt='Error img' />
                     <Grow in={checked}>
-                        <div className='Account_Bar' style={{ width: '250px', height: '300px', borderRadius: "20px", position: 'absolute', backgroundColor: 'rgb(231, 231, 231)', display: account === false ? 'none' : 'block' }}>
+                        <div className='Account_Bar' style={{ maxWidth: '300px', height: '350px', borderRadius: "20px", position: 'absolute', backgroundColor: 'rgb(231, 231, 231)', display: account === false ? 'none' : 'block' }}>
                             <IconButton sx={{ position: 'absolute', right: '10px', top: '10px' }} onClick={TogglShowAccount}>
                                 <Close className='AccountClose' />
                             </IconButton>
@@ -385,16 +470,17 @@ function Dashboard() {
                             <Box ml={2} mt={1} >
                                 <h2 className='asssistantGenderh2'>Assistant ovozi:</h2>
                                 <form onChange={handleChangeAssistantGender}>
+
+
                                     <select onChange={handleChangeAssistantGender} className='AssistantGender'>
-                                        <h2>Assistant ovozi</h2>
                                         <option >Ayol</option>
                                         <option >erkak</option>
                                     </select>
 
                                 </form>
                             </Box>
-                            <Box marginTop={"50px"} display={"flex"} justifyContent={"center"}>
-                                <Button onClick={SignOutHandler} variant="outlined" className='AccountOutButton' color="error">
+                            <Box marginTop={"50px"} display={"flex"} justifyContent={"center"} >
+                                <Button sx={{ margin: '20px' }} onClick={SignOutHandler} variant="outlined" className='AccountOutButton' color="error">
                                     Akkauntdan Chiqish
                                 </Button>
                             </Box>
@@ -407,6 +493,7 @@ function Dashboard() {
 
                     {isRecognizing ? <KeyboardVoice className='MicrophoneIcon' /> : <KeyboardVoice className='MicrophoneIcon ' />}
                 </button>
+
                 <h1 className='DetectedTextData' >{displayText === '' ? '' : displayText}</h1>
 
 
@@ -438,7 +525,19 @@ function Dashboard() {
 
                                                 </div>
                                                 <Box mt={1}>
-                                                    <p className='DetectedVoice' >{GptMessageiSDisplay}</p>
+                                                    {GptMessageiSDisplay === "Yaxshi, qanday qo'shiq eshitmoqchisiz menda faqat shular!" ? (
+                                                        <>
+                                                            <p className='DetectedVoice' >{GptMessageiSDisplay}</p>
+                                                            {MusicUrls.map((list, num) => (
+                                                                <>
+                                                                    <p className='DetectedVoice' >{num} {list.name}</p>
+                                                                    <audio src={list.url} controls ></audio>
+                                                                </>
+                                                            ))}
+                                                        </>
+                                                    ) : (
+                                                        <p className='DetectedVoice' >{GptMessageiSDisplay}</p>
+                                                    )}
                                                 </Box>
                                             </div>
                                         </div>
@@ -448,6 +547,7 @@ function Dashboard() {
                             </>
                         )}
                     </>
+
                 )}
 
 
