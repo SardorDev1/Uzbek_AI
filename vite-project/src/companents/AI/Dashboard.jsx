@@ -40,7 +40,7 @@ function Dashboard() {
     const [MessageFromIF, setMessageFromIF] = useState('')
     const [VoiceTrue, setVoiceTrue] = useState(false)
     const [GptMessageiSDisplay, setGptMessageiSDisplay] = useState('')
-
+    const MusicRef = useRef(null)
     const [catchs, setCatchs] = useState(false)
     const [GptMessageLaunguage, setGptMessageLaunguage] = useState('')
     const [dark, setDark] = useState(false);
@@ -445,11 +445,24 @@ function Dashboard() {
     };
 
 
-
     function removeRepeatedUnderscores(text) {
         const regex = /_/g;
         return text.replace(regex, ' ');
     }
+    const [isMusicPlaying, setIsMusicPlaying] = useState([]);
+
+
+    const handlePlay = (audioIndex) => {
+        setIsMusicPlaying((prevPlaying) => [...prevPlaying, audioIndex]);
+    };
+
+    const handlePause = (audioIndex) => {
+        setIsMusicPlaying((prevPlaying) =>
+            prevPlaying.filter((index) => index !== audioIndex)
+        );
+    };
+
+
     return (
         <>
             <section className={dark === true ? 'App dark' : 'App'} >
@@ -499,7 +512,7 @@ function Dashboard() {
 
                 <button id='MicrophoneButton' className={isRecognizing ? 'MicrophoneButtonOn' : 'MicrophoneButtonOff'} onClick={toggleRecognition}>
 
-                    {isRecognizing ? <KeyboardVoice className='MicrophoneIcon' /> : <KeyboardVoice className='MicrophoneIcon ' />}
+                    {isRecognizing ? <p>Gapiring</p> : <KeyboardVoice className='MicrophoneIcon ' />}
                 </button>
 
                 <h1 className='DetectedTextData' >{displayText === '' ? '' : displayText}</h1>
@@ -522,7 +535,7 @@ function Dashboard() {
                         ) : (
                             <>
 
-                                <audio ref={audioRef} id="audioPlayer" src={assistantVoiceContent} autoPlay />
+                                <audio id="audioPlayer" src={assistantVoiceContent} autoPlay />
                                 {GptMessageiSDisplay === '' ? (<></>) : (
                                     <>
                                         <Grow in={true}>
@@ -540,9 +553,10 @@ function Dashboard() {
                                                                 {MusicUrls.map((list, num) => (
                                                                     <>
                                                                         <div className="wrap_audioCard">
-                                                                            <p style={{ fontSize: "16px" }} className='DetectedVoices' >{num + 1}) {removeRepeatedUnderscores(list.name)}</p>
-                                                                            <audio  type="audio/mpeg" className='Musics' src={list.url} controls ></audio>
-                                                                        </div>
+                                                                            <p style={{ fontSize: "16px", paddingBottom: "10px" }} className='DetectedVoices' >{num + 1}) {removeRepeatedUnderscores(list.name)}</p>
+                                                                            <audio onPlay={() => handlePlay(num + 1)}
+                                                                                onPause={() => handlePause(num + 1)} type="audio/mpeg" className={`Musics ${isMusicPlaying.includes(num + 1) ? `played` : ''}`} src={list.url} controls ></audio>
+                                                                        </div >
                                                                     </>
                                                                 ))}
                                                             </>
