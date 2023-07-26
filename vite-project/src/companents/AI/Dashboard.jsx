@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
-import { Avatar, Box, Card, CircularProgress, FormControl, IconButton, InputLabel, MenuItem, Select, Switch, Typography } from "@mui/material"
+import { Avatar, Box, Card, CircularProgress, FormControl, LinearProgress, IconButton, InputLabel, MenuItem, Select, Switch, Typography } from "@mui/material"
 import { Close, VerifiedUser, KeyboardVoice, CheckCircle } from "@mui/icons-material"
 import { Grow, Slide, Fade, Snackbar, Button } from '@mui/material';
 import "../../App.css"
@@ -11,11 +11,8 @@ import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import { franc } from 'franc';
 import '@fontsource/roboto/700.css';
-
 import { ref, listAll, getDownloadURL } from 'firebase/storage';
 import { storage } from '../config/firebase';
-
-
 function GrowTransition(props) {
     return <Grow {...props} />;
 }
@@ -26,8 +23,8 @@ function Dashboard() {
 
     const [MusicUrls, setMusicUrls] = useState([]);
     const MusicListRef = ref(storage);
-
     const [detectedVoice, setDetectedVoice] = useState('');
+    const [progress, setProgress] = useState(0);
     const [isRecognizing, setIsRecognizing] = useState(false);
     const [assistantVoiceContent, setAssistantVoiceContent] = useState('');
     const [Assistantgender, setAssistantgender] = useState('dilfuza');
@@ -42,7 +39,9 @@ function Dashboard() {
     const [GptMessageiSDisplay, setGptMessageiSDisplay] = useState('')
     const MusicRef = useRef(null)
     const [catchs, setCatchs] = useState(false)
+    const [LoadingNewUser, setLoadingNewUser] = useState(true)
     const [GptMessageLaunguage, setGptMessageLaunguage] = useState('')
+    const [LoadingPage, setLoadingPage] = useState(true)
     const [dark, setDark] = useState(false);
     const [musicList, setMusicList] = useState([])
     const audioRef = useRef(null);
@@ -73,7 +72,42 @@ function Dashboard() {
             .replace(/ʼ/g, "'");
     }
 
+
+
     useEffect(() => {
+        if (localStorage.getItem('NewUser') !== 'not_new_user') {
+            const timer = setInterval(() => {
+                setProgress((oldProgress) => {
+                    if (oldProgress === 100) {
+                        localStorage.setItem('NewUser', "not_new_user")
+                        setLoadingPage(false)
+                        setLoadingNewUser(localStorage.getItem('NewUser') === 'not_new_user' ? false : true)
+                        console.log(LoadingNewUser);
+                        return () => {
+                            clearInterval(timer);
+                        };
+                    }
+                    const diff = Math.random() * 10;
+                    return Math.min(oldProgress + diff, 100);
+                });
+            }, 1000);
+
+        } else {
+            const timer = setInterval(() => {
+                setProgress((oldProgress) => {
+                    if (oldProgress === 100) {
+                        setLoadingPage(false)
+                        return () => {
+                            clearInterval(timer);
+                        };
+                    }
+                    const diff = Math.random() * 10;
+                    return Math.min(oldProgress + diff, 100);
+                });
+            }, 10);
+
+        }
+
         listAll(MusicListRef)
             .then((response) => {
                 // Barcha fayllar uchun URL lar to'plamini saqlash uchun ro'yxat
@@ -216,7 +250,6 @@ function Dashboard() {
         } else if (
             detectedVoice === "musiqa qoy" ||
             detectedVoice === "qoʻshiq qoʻy" ||
-            detectedVoice === "qoshoq" ||
             detectedVoice === "qoʻshiq qoyvor" ||
             detectedVoice === "qoʻshiq qo'yvor" ||
             detectedVoice === "musiqa qo'yvor" ||
@@ -232,7 +265,12 @@ function Dashboard() {
             detectedVoice === "musiqa qoy" ||
             detectedVoice === "musiqa" ||
             detectedVoice === "ashula" ||
-            detectedVoice === "tarona"
+            detectedVoice === "tarona eshitmoqchiman" ||
+            detectedVoice === "tarona eshitmoqchi man" ||
+            detectedVoice === "qoʻshiq eshitmoqchiman" ||
+            detectedVoice === "qoʻshiq eshitmoqchi man" ||
+            detectedVoice === "musiqa eshitmoqchiman" ||
+            detectedVoice === "musiqa eshitmoqchi man"
         ) {
             const reqRandom = "Yaxshi, qanday qo'shiq eshitmoqchisiz menda hozircha faqat shular!"
 
@@ -381,6 +419,8 @@ function Dashboard() {
     const [dots, setDots] = useState("...")
     const [user, setUser] = useState(null)
     useEffect(() => {
+
+
         const unsubscribe = onAuthStateChanged(auth, (user) => {
             if (user) {
                 setUser(user)
@@ -449,6 +489,10 @@ function Dashboard() {
         const regex = /_/g;
         return text.replace(regex, ' ');
     }
+    function MusicName(musicName) {
+        const regex = /\.mp3/g;
+        return musicName.replace(regex, '');
+    }
     const [isMusicPlaying, setIsMusicPlaying] = useState([]);
 
 
@@ -463,132 +507,145 @@ function Dashboard() {
     };
 
 
-    return (
-        <>
-            <section className={dark === true ? 'App dark' : 'App'} >
+    if (LoadingPage === true) {
+        return (
+            <>
+                <div className="AppLoading">
+                    <Box className='LoadingLine' sx={{ width: '40%' }}>
+                        <LinearProgress variant="determinate" value={progress} />
 
-                <div className='Account'>
-                    <Avatar onClick={TogglShowAccount} style={{ width: '50px', height: '50px' }} className='AccountLogo' src={null} alt='Error img' />
-                    <Grow in={checked}>
-                        <div className='Account_Bar' style={{ maxWidth: '300px', height: '350px', borderRadius: "20px", position: 'absolute', backgroundColor: 'rgb(231, 231, 231)', display: account === false ? 'none' : 'block' }}>
-                            <IconButton sx={{ position: 'absolute', right: '10px', top: '10px' }} onClick={TogglShowAccount}>
-                                <Close className='AccountClose' />
-                            </IconButton>
-                            <Box mt={5} ml={1} display={"flex"} alignItems={"center"}>
-                                <Avatar onClick={TogglShowAccount} style={{ width: '50px', height: '50px' }} src={<VerifiedUser className='AccountLogo' />} />
-
-                                <Typography className='AccountInfo' ml={1} >
-                                    {user?.displayName === null ? user?.email?.replace('@gmail.com', '').replace(/[0-9]/g, '') : user?.displayName}
-                                    <CheckCircle sx={{ fontSize: '12px', color: '#007bff', ml: '5px' }} />
-                                </Typography>
-                            </Box>
-                            <Box mt={2} ml={2} display={"flex"} alignItems={"center"}>
-                                <Typography className='AccountMode'>
-                                    Tun rijimi
-                                    <Switch {...label} checked={dark} onChange={ToggleDarkMode} />
-                                </Typography>
-                            </Box>
-                            <Box ml={2} mt={1} >
-                                <h2 className='asssistantGenderh2'>Assistant ovozi:</h2>
-                                <form onChange={handleChangeAssistantGender}>
-
-
-                                    <select onChange={handleChangeAssistantGender} className='AssistantGender'>
-                                        <option >Ayol</option>
-                                        <option >erkak</option>
-                                    </select>
-
-                                </form>
-                            </Box>
-                            <Box marginTop={"50px"} display={"flex"} justifyContent={"center"} >
-                                <Button sx={{ margin: '20px' }} onClick={SignOutHandler} variant="outlined" className='AccountOutButton' color="error">
-                                    Akkauntdan Chiqish
-                                </Button>
-                            </Box>
-                        </div>
-                    </Grow>
+                    </Box>
                 </div>
+            </>
+        )
+    } else {
+        return (
+            <>
+                <section className={dark === true ? 'App dark' : 'App'} >
+
+                    <div className='Account'>
+                        <Avatar onClick={TogglShowAccount} style={{ width: '50px', height: '50px' }} className='AccountLogo' src={null} alt='Error img' />
+                        <Grow in={checked}>
+                            <div className='Account_Bar' style={{ maxWidth: '300px', height: '350px', borderRadius: "20px", position: 'absolute', backgroundColor: 'rgb(231, 231, 231)', display: account === false ? 'none' : 'block' }}>
+                                <IconButton sx={{ position: 'absolute', right: '10px', top: '10px' }} onClick={TogglShowAccount}>
+                                    <Close className='AccountClose' />
+                                </IconButton>
+                                <Box mt={5} ml={1} display={"flex"} alignItems={"center"}>
+                                    <Avatar onClick={TogglShowAccount} style={{ width: '50px', height: '50px' }} src={<VerifiedUser className='AccountLogo' />} />
+
+                                    <Typography className='AccountInfo' ml={1} >
+                                        {user?.displayName === null ? user?.email?.replace('@gmail.com', '').replace(/[0-9]/g, '') : user?.displayName}
+                                        <CheckCircle sx={{ fontSize: '12px', color: '#007bff', ml: '5px' }} />
+                                    </Typography>
+                                </Box>
+                                <Box mt={2} ml={2} display={"flex"} alignItems={"center"}>
+                                    <Typography className='AccountMode'>
+                                        Tun rijimi
+                                        <Switch {...label} checked={dark} onChange={ToggleDarkMode} />
+                                    </Typography>
+                                </Box>
+                                <Box ml={2} mt={1} >
+                                    <h2 className='asssistantGenderh2'>Assistant ovozi:</h2>
+                                    <form onChange={handleChangeAssistantGender}>
 
 
-                <button id='MicrophoneButton' className={isRecognizing ? 'MicrophoneButtonOn' : 'MicrophoneButtonOff'} onClick={toggleRecognition}>
+                                        <select onChange={handleChangeAssistantGender} className='AssistantGender'>
+                                            <option >Ayol</option>
+                                            <option >erkak</option>
+                                        </select>
 
-                    {isRecognizing ? <p>Gapiring</p> : <KeyboardVoice className='MicrophoneIcon ' />}
-                </button>
+                                    </form>
+                                </Box>
+                                <Box marginTop={"50px"} display={"flex"} justifyContent={"center"} >
+                                    <Button sx={{ margin: '20px' }} onClick={SignOutHandler} variant="outlined" className='AccountOutButton' color="error">
+                                        Akkauntdan Chiqish
+                                    </Button>
+                                </Box>
+                            </div>
+                        </Grow>
+                    </div>
 
-                <h1 className='DetectedTextData' >{displayText === '' ? '' : displayText}</h1>
+
+                    <button id='MicrophoneButton' className={isRecognizing ? 'MicrophoneButtonOn' : 'MicrophoneButtonOff'} onClick={toggleRecognition}>
+
+                        {isRecognizing ? <p>Gapiring</p> : <KeyboardVoice className='MicrophoneIcon ' />}
+                    </button>
+
+                    <h1 className='DetectedTextData' >{displayText === '' ? '' : displayText}</h1>
 
 
-                {isAssistantVoiceReady && (
-                    <>
-                        {isLoading === true ? (
-                            <Box display={"flex"} alignItems={"center"}  >
+                    {isAssistantVoiceReady && (
+                        <>
+                            {isLoading === true ? (
+                                <Box display={"flex"} alignItems={"center"}  >
 
-                                <Snackbar
-                                    open={state.open}
-                                    TransitionComponent={state.Transition}
-                                    sx={{ borderRadius: "20px" }}
-                                    message={<div style={{ display: 'flex', alignItems: 'center' }}><CircularProgress />  <p style={{ marginLeft: "10px" }} >O'ylamoqda {dots}</p></div>}
-                                    key={state.Transition.name}
+                                    <Snackbar
+                                        open={state.open}
+                                        TransitionComponent={state.Transition}
+                                        sx={{ borderRadius: "20px" }}
+                                        message={<div style={{ display: 'flex', alignItems: 'center' }}><CircularProgress />  <p style={{ marginLeft: "10px" }} >O'ylamoqda {dots}</p></div>}
+                                        key={state.Transition.name}
 
-                                />
-                            </Box>
-                        ) : (
-                            <>
+                                    />
+                                </Box>
+                            ) : (
+                                <>
 
-                                <audio id="audioPlayer" src={assistantVoiceContent} autoPlay />
-                                {GptMessageiSDisplay === '' ? (<></>) : (
-                                    <>
-                                        <Grow in={true}>
-                                            <div className='WrapDetectedVoice' >
+                                    <audio id="audioPlayer" src={assistantVoiceContent} autoPlay />
+                                    {GptMessageiSDisplay === '' ? (<></>) : (
+                                        <>
+                                            <Grow in={true}>
+                                                <div className='WrapDetectedVoice' >
 
-                                                <div className='BoxDetectedVoice'  >
-                                                    <div onClick={() => setGptMessageiSDisplay('')} >
-                                                        <Close className='CloseDetectedVoice' />
+                                                    <div className='BoxDetectedVoice'  >
+                                                        <div onClick={() => setGptMessageiSDisplay('')} >
+                                                            <Close className='CloseDetectedVoice' />
 
-                                                    </div>
-                                                    <Box mt={1}   >
-                                                        {GptMessageiSDisplay === "Yaxshi, qanday qo'shiq eshitmoqchisiz menda hozircha faqat shular!" ? (
-                                                            <>
+                                                        </div>
+                                                        <Box mt={1}   >
+                                                            {GptMessageiSDisplay === "Yaxshi, qanday qo'shiq eshitmoqchisiz menda hozircha faqat shular!" ? (
+                                                                <>
+                                                                    <p className='DetectedVoice' >{GptMessageiSDisplay}</p>
+                                                                    {MusicUrls.map((list, num) => (
+                                                                        <>
+                                                                            <div className={`wrap_audioCard ${isMusicPlaying.includes(num + 1) ? `played  ` : ''}`}>
+                                                                                <p style={{ fontSize: "16px", paddingBottom: "10px" }} className='DetectedVoices' >{num + 1}) {removeRepeatedUnderscores(MusicName(list.name))}</p>
+                                                                                <audio onPlay={() => handlePlay(num + 1)}
+                                                                                    onPause={() => handlePause(num + 1)} type="audio/mpeg" className={`Musics`} src={list.url} controls ></audio>
+                                                                            </div >
+                                                                        </>
+                                                                    ))}
+                                                                </>
+                                                            ) : (
                                                                 <p className='DetectedVoice' >{GptMessageiSDisplay}</p>
-                                                                {MusicUrls.map((list, num) => (
-                                                                    <>
-                                                                        <div className="wrap_audioCard">
-                                                                            <p style={{ fontSize: "16px", paddingBottom: "10px" }} className='DetectedVoices' >{num + 1}) {removeRepeatedUnderscores(list.name)}</p>
-                                                                            <audio onPlay={() => handlePlay(num + 1)}
-                                                                                onPause={() => handlePause(num + 1)} type="audio/mpeg" className={`Musics ${isMusicPlaying.includes(num + 1) ? `played` : ''}`} src={list.url} controls ></audio>
-                                                                        </div >
-                                                                    </>
-                                                                ))}
-                                                            </>
-                                                        ) : (
-                                                            <p className='DetectedVoice' >{GptMessageiSDisplay}</p>
-                                                        )}
-                                                    </Box>
+                                                            )}
+                                                        </Box>
+                                                    </div>
                                                 </div>
-                                            </div>
 
-                                        </Grow>
-                                    </>
-                                )
-                                }
-                            </>
-                        )}
-                    </>
+                                            </Grow>
+                                        </>
+                                    )
+                                    }
+                                </>
+                            )}
+                        </>
 
-                )}
-
+                    )}
 
 
-            </section >
 
+                </section >
 
 
 
 
 
 
-        </>
-    );
+
+            </>
+        );
+    }
 }
 
 export default Dashboard;

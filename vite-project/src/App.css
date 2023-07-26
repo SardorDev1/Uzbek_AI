@@ -16,24 +16,39 @@
 }
 
 
+@keyframes animationOpenApp {
+    0% {
+        transform: scale(0);
+        border-radius: 50%;
+
+    }
+
+    100% {
+        border-radius: 0px;
+        transform: scale(1);
+    }
+}
+
 .BoxDetectedVoice {
     max-width: 100% !important;
     min-height: 100%;
     padding: 20px;
     background-color: rgba(34, 0, 136, 0.564);
-color: white;
+    color: white;
     margin-top: 100px;
     border-radius: 20px;
 
 }
-.DetectedVoices{
-    color:#242424 !important;
+
+.DetectedVoices {
+    color: #242424 !important;
 }
+
 .BoxDetectedVoice p {
     font-size: 20px;
     font-family: 'VT323', monospace;
     margin: 10px;
-    color: white  ;
+    color: white;
 }
 
 @media(max-width:450px) {
@@ -58,13 +73,20 @@ color: white;
         font-size: 12px !important;
         padding-top: 10px;
     }
+
+    .App {
+        background-size: 500px 800px !important;
+
+    }
 }
 
 .App {
     min-height: 100vh;
     height: 100%;
     width: 100%;
-    background-size: 100% 1000px;
+    animation: animationOpenApp .5s ease-in-out;
+
+    background-size: 100% 900px;
     background-color: #020437;
     background-repeat: no-repeat;
     background-position: fixed;
@@ -171,10 +193,11 @@ color: white;
 }
 
 
-.MicrophoneButtonOn p{
+.MicrophoneButtonOn p {
     color: white;
-font-size: 14px;
+    font-size: 14px;
 }
+
 .MicrophoneIcon {
     font-size: 50px !important;
     cursor: pointer;
@@ -331,13 +354,55 @@ font-size: 14px;
 .MicrophoneButtonOn {
     box-shadow: 0px 0px 10px #000269;
 }
-.dark .DetectedVoices{
+
+.dark .DetectedVoices {
     color: #d5d5d5 !important;
 }
-.played{
-border: 10px solid #000269;
-border-radius: 20px;
+
+.played { 
+    border: 12px solid rgb(0, 106, 255);
+width: 100%;
+height: 150px;
+margin-top: 30px;
+margin-bottom: 30px;
+    border-radius: 20px;
+}
+.played p{
+    font-size: 20px !important;
+    background-color: rgb(219, 219, 219);
+    border-radius: 10px;
+    font-family: Arial, Helvetica, sans-serif;
+   
+}
+   
+
+.dark .played p{
+    font-size: 20px !important;
+    background-color: rgb(28, 28, 28);
+    border-radius: 10px;
+   
+}
+.dark .played {
+
+    border: 12px solid rgb(164, 164, 164);
+
+   
+}
+.AppLoading {
+    min-height: 100vh;
+    height: 100%;
+    width: 100%;
+    background-repeat: no-repeat;
+    background-color: black;
+    background-size: 700px 400px;
+    background-position: center;
+    background-image: url('./companents/assets/BackgroundLoading.jpg') !important;
 }
 
+.LoadingLine {
+    position: absolute;
+    bottom: 130px;
+    margin: auto;
+    left: 30.5%;
 
-
+}
