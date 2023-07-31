@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { Avatar, Box, Card, CircularProgress, FormControl, LinearProgress, IconButton, InputLabel, MenuItem, Select, Switch, Typography } from "@mui/material"
-import { Close, VerifiedUser, KeyboardVoice, CheckCircle } from "@mui/icons-material"
+import { Close, VerifiedUser, KeyboardVoice, CheckCircle, Send } from "@mui/icons-material"
 import { Grow, Slide, Fade, Snackbar, Button } from '@mui/material';
 import "../../App.css"
 import { onAuthStateChanged, signOut } from 'firebase/auth'
@@ -9,6 +9,7 @@ import { auth } from '../config/firebase';
 import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
+import { styled } from '@mui/system';
 import { franc } from 'franc';
 import '@fontsource/roboto/700.css';
 import { ref, listAll, getDownloadURL } from 'firebase/storage';
@@ -44,6 +45,8 @@ function Dashboard() {
     const [LoadingPage, setLoadingPage] = useState(true)
     const [dark, setDark] = useState(false);
     const [musicList, setMusicList] = useState([])
+    const [textQuation, setTextQuation] = useState('')
+    const LoadingAudio = useRef(null)
     const audioRef = useRef(null);
     const label = { inputProps: { 'aria-label': 'Switch demo' } };
 
@@ -60,7 +63,17 @@ function Dashboard() {
 
         recognition.start();
     };
+    const SubmitTextQuation = (e) => {
+        e.preventDefault();
+        if (textQuation === '') {
+            return
+        }
 
+        else {
+            setDetectedVoice(textQuation)
+        }
+        console.log("He");
+    }
     // const symbols = [];
     // "’", "‵", "‛", "”", "ʼ"
     function replaceSymbols(text) {
@@ -72,17 +85,21 @@ function Dashboard() {
             .replace(/ʼ/g, "'");
     }
 
-
-
     useEffect(() => {
+
         if (localStorage.getItem('NewUser') !== 'not_new_user') {
+
             const timer = setInterval(() => {
+
                 setProgress((oldProgress) => {
+                    // Audio faylni otomatik ravishda ijro etish
+
                     if (oldProgress === 100) {
                         localStorage.setItem('NewUser', "not_new_user")
                         setLoadingPage(false)
                         setLoadingNewUser(localStorage.getItem('NewUser') === 'not_new_user' ? false : true)
                         console.log(LoadingNewUser);
+
                         return () => {
                             clearInterval(timer);
                         };
@@ -98,6 +115,7 @@ function Dashboard() {
                     if (oldProgress === 100) {
                         setLoadingPage(false)
                         return () => {
+
                             clearInterval(timer);
                         };
                     }
@@ -140,7 +158,7 @@ function Dashboard() {
             });
     }, []);
 
-    console.log(MusicUrls);
+
     const stopRecognition = () => {
         setIsRecognizing(false);
         setDetectedVoice('');
@@ -285,17 +303,19 @@ function Dashboard() {
                     url: 'https://chatgpt-api8.p.rapidapi.com/',
                     headers: {
                         'content-type': 'application/json',
-                        'X-RapidAPI-Key': '338be19902mshc80180f0026f9eep1a50f0jsn14646f3ebe1c',
+                        'X-RapidAPI-Key': 'b45afb5397msha6e0e6e1612f0eap11f348jsn4f0094d203d3',
                         'X-RapidAPI-Host': 'chatgpt-api8.p.rapidapi.com'
                     },
+
                     // 338be19902mshc80180f0026f9eep1a50f0jsn14646f3ebe1c
                     data: [
                         {
                             content: detectedVoice,
-                            role: 'user',
-                        },
+                            role: 'user'
+                        }
+                    ]
 
-                    ],
+
                 };
 
                 setIsLoading(true)
@@ -309,7 +329,7 @@ function Dashboard() {
 
                 } catch (error) {
                     console.error(error);
-                    const reqRandom = ["Obooo, yana sizmi", `Iltimos ${localStorage.getItem('name') === null ? user?.displayName === null ? user?.email?.replace('@gmail.com', '').replace(/[0-9]/g, '') : user?.displayName : localStorage.getItem('name')}  aka! kiyinroq qayta urinib ko'ring!`, "Tarmoqda Nosozlik yuzaga keldi, Iltimos qayta urinib ko'ring!"];
+                    const reqRandom = ["Bugungki kun uchun ajiratilgan 10 ta so'ro'v tugadi 24 soatdan kiyin urinib ko'ring", `Iltimos ${localStorage.getItem('name') === null ? user?.displayName === null ? user?.email?.replace('@gmail.com', '').replace(/[0-9]/g, '') : user?.displayName : localStorage.getItem('name')}  bu kungi 10 ta so'ro'v yakunlandi 24 soatdan kiyin urinib ko'ring!`, "Ajiratilgan 10 ta so'ro'v yakunlandi 24 soatdan kiyin urinib ko'ring!"];
                     const randomIndex = Math.floor(Math.random() * reqRandom.length);
                     setGptMessage(reqRandom[randomIndex]);
                     setCatchs(true)
@@ -317,7 +337,7 @@ function Dashboard() {
             };
             GptfetchData();
         }
-        console.log(musicList);
+
 
 
         setAssistantVoiceContent(null);
@@ -328,8 +348,10 @@ function Dashboard() {
         if (launguageGptMessage === 'uzn' || launguageGptMessage === "und" || catchs === true) {
 
         } else if (launguageGptMessage === 'eng' || launguageGptMessage === 'rus' || launguageGptMessage === 'arb' || launguageGptMessage === "tur") {
-            setVoiceTrue(false)
+            setVoiceTrue(true)
             setGptMessage("Savolingizga chunmadim qaytara olasizmi")
+
+            setMessageFromIF('Savolingizga chunmadim qaytara olasizmi')
 
         }
         console.log(launguageGptMessage);
@@ -384,7 +406,11 @@ function Dashboard() {
             setVoiceTrue(false)
             setTimeout(() => {
                 setGptMessage('')
-            }, 500);
+                if (typeof MessageFromIF === 'function') {
+                    MessageFromIF('');
+                }
+
+            }, 200);
 
         }
 
@@ -505,13 +531,22 @@ function Dashboard() {
             prevPlaying.filter((index) => index !== audioIndex)
         );
     };
-
+    const handleSearch = (searchText) => {
+        // Qidiruv amalini bajarish va natijani olish
+        // Bu misolda, oddiy emas va faqat yoritish uchun o'rnak qilindi
+        (`Siz qidirgan natija: "${searchText}"`);
+    };
 
     if (LoadingPage === true) {
+
+
         return (
+
             <>
                 <div className="AppLoading">
                     <Box className='LoadingLine' sx={{ width: '40%' }}>
+                        <audio ref={LoadingAudio} src={'../assets/audioLoading.mp3'}></audio>
+
                         <LinearProgress variant="determinate" value={progress} />
 
                     </Box>
@@ -591,7 +626,7 @@ function Dashboard() {
                             ) : (
                                 <>
 
-                                    <audio id="audioPlayer" src={assistantVoiceContent} autoPlay />
+                                    <audio ref={audioRef} id="audioPlayer" src={assistantVoiceContent} autoPlay />
                                     {GptMessageiSDisplay === '' ? (<></>) : (
                                         <>
                                             <Grow in={true}>
@@ -634,7 +669,12 @@ function Dashboard() {
                     )}
 
 
-
+                    <form className='QuationText' onSubmit={SubmitTextQuation}>
+                        <input type="text" onChange={(e) => setTextQuation(e.target.value)} placeholder='shu yerga savol yuboring!' />
+                        <IconButton type='submit'>
+                            <Send />
+                        </IconButton>
+                    </form>
                 </section >
 
 
