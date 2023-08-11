@@ -245,9 +245,7 @@
         height: 20px;
         padding: 10px;
         margin-top: 50px;
-    }
-
-
+    }   
 }
 
 .DetectedTextData {
@@ -416,7 +414,8 @@ border-radius: 10px;
  left: 25%;
  right: 25%;
  display: flex;
-    position: absolute;
+ margin-top: 100px;
+    position: fixed;
 }
 .QuationText input{
 width: 100%;
@@ -452,4 +451,7 @@ padding: 10px;
     .dark .QuationText{
         background-color: #161616;
 
+    }
+    .ResponseAnswer{
+      
     }

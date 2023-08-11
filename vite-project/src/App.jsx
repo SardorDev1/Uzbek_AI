@@ -6,6 +6,7 @@ import SignIn from './companents/SignUpSignIn/SignIn'
 import { useEffect, useState } from 'react'
 import { onAuthStateChanged } from 'firebase/auth'
 import { auth } from './companents/config/firebase'
+
 export default function App() {
   const navigate = useNavigate()
   useEffect(() => {
@@ -13,7 +14,6 @@ export default function App() {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
 
-        navigate('/')
       } else {
 
         navigate('/login')

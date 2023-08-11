@@ -37,11 +37,13 @@ function Dashboard() {
     const [isLoading, setIsLoading] = useState(false);
     const [MessageFromIF, setMessageFromIF] = useState('')
     const [VoiceTrue, setVoiceTrue] = useState(false)
+    const [test, setTest] = useState('')
     const [GptMessageiSDisplay, setGptMessageiSDisplay] = useState('')
     const MusicRef = useRef(null)
     const [catchs, setCatchs] = useState(false)
     const [LoadingNewUser, setLoadingNewUser] = useState(true)
     const [GptMessageLaunguage, setGptMessageLaunguage] = useState('')
+    const [IsCode, setIsCode] = useState(null)
     const [LoadingPage, setLoadingPage] = useState(true)
     const [dark, setDark] = useState(false);
     const [musicList, setMusicList] = useState([])
@@ -86,6 +88,8 @@ function Dashboard() {
     }
 
     useEffect(() => {
+
+
 
         if (localStorage.getItem('NewUser') !== 'not_new_user') {
 
@@ -303,7 +307,7 @@ function Dashboard() {
                     url: 'https://chatgpt-api8.p.rapidapi.com/',
                     headers: {
                         'content-type': 'application/json',
-                        'X-RapidAPI-Key': 'b45afb5397msha6e0e6e1612f0eap11f348jsn4f0094d203d3',
+                        'X-RapidAPI-Key': 'e760741a4fmshc16220c60bf4c5fp1bd712jsn7e1afbd3e64a',
                         'X-RapidAPI-Host': 'chatgpt-api8.p.rapidapi.com'
                     },
 
@@ -391,6 +395,8 @@ function Dashboard() {
             }
         };
 
+
+
         voiceFetchData();
     }, [GptMessage, detectedVoice]);
     const isAudioPlaying = useRef(false);
@@ -430,6 +436,7 @@ function Dashboard() {
 
 
     useEffect(() => {
+
         if (detectedVoice === '') {
             return;
         }
@@ -442,7 +449,28 @@ function Dashboard() {
     }, [detectedVoice]);
 
     // Rest of the code..
+
+
     const [dots, setDots] = useState("...")
+    useEffect(() => {
+        if (GptMessage !== null) {
+            if (GptMessage.includes("```")) {
+              
+                let start = GptMessage.indexOf("```") + 3;
+                let end = GptMessage.lastIndexOf("```");    
+                setIsCode(GptMessage.substring(start, end))
+
+    setGptMessage(GptMessage.replace(GptMessage.substring(start, end), " ", "```" , "")) 
+
+                console.log(GptMessage);
+                
+                console.log("Code detected");
+            } else {
+                console.log("Matnda ``` belgisi yo'q.");
+            }
+        }
+    }, [GptMessage]);
+    console.log(IsCode);
     const [user, setUser] = useState(null)
     useEffect(() => {
 
@@ -585,8 +613,8 @@ function Dashboard() {
 
 
                                         <select onChange={handleChangeAssistantGender} className='AssistantGender'>
-                                            <option >Ayol</option>
-                                            <option >erkak</option>
+                                            <option >Marjona</option>
+                                            <option >Sanjar</option>
                                         </select>
 
                                     </form>
@@ -652,7 +680,16 @@ function Dashboard() {
                                                                     ))}
                                                                 </>
                                                             ) : (
-                                                                <p className='DetectedVoice' >{GptMessageiSDisplay}</p>
+                                                                <>
+                                                                    <p className='DetectedVoice' >{GptMessageiSDisplay}</p>
+                                                                    {IsCode === null ? <></> : <>
+                                                                        <div className='CodeDetected' >
+                                                                            <pre>
+                                                                                <code>{IsCode}</code>
+                                                                            </pre>
+                                                                        </div>
+                                                                    </>}
+                                                                </>
                                                             )}
                                                         </Box>
                                                     </div>
