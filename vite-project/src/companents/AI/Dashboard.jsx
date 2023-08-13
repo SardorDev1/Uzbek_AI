@@ -53,6 +53,10 @@ function Dashboard() {
     const label = { inputProps: { 'aria-label': 'Switch demo' } };
 
     const startRecognition = () => {
+        setIsCode(null)
+        setAssistantVoiceContent(null)
+        setGptMessage(null)
+        setMessageFromIF(null)
         const recognition = new (window.webkitSpeechRecognition || window.SpeechRecognition)();
         recognition.lang = 'uz-UZ';
         setIsRecognizing(true);
@@ -74,7 +78,7 @@ function Dashboard() {
         else {
             setDetectedVoice(textQuation)
         }
-        console.log("He");
+
     }
     // const symbols = [];
     // "’", "‵", "‛", "”", "ʼ"
@@ -307,7 +311,7 @@ function Dashboard() {
                     url: 'https://chatgpt-api8.p.rapidapi.com/',
                     headers: {
                         'content-type': 'application/json',
-                        'X-RapidAPI-Key': 'e760741a4fmshc16220c60bf4c5fp1bd712jsn7e1afbd3e64a',
+                        'X-RapidAPI-Key': 'cbac824f82mshdcc55dbd8d7753cp1bc08fjsne6b6d7999d10',
                         'X-RapidAPI-Host': 'chatgpt-api8.p.rapidapi.com'
                     },
 
@@ -333,10 +337,14 @@ function Dashboard() {
 
                 } catch (error) {
                     console.error(error);
-                    const reqRandom = ["Bugungki kun uchun ajiratilgan 10 ta so'ro'v tugadi 24 soatdan kiyin urinib ko'ring", `Iltimos ${localStorage.getItem('name') === null ? user?.displayName === null ? user?.email?.replace('@gmail.com', '').replace(/[0-9]/g, '') : user?.displayName : localStorage.getItem('name')}  bu kungi 10 ta so'ro'v yakunlandi 24 soatdan kiyin urinib ko'ring!`, "Ajiratilgan 10 ta so'ro'v yakunlandi 24 soatdan kiyin urinib ko'ring!"];
+
+                    const reqRandom = ["Bugungki kun uchun ajiratilgan 10 ta so'ro'v tugadi 24 soatdan kiyin urinib ko'ring!", `Iltimos ${localStorage.getItem('name') === null ? user?.displayName === null ? user?.email?.replace('@gmail.com', '').replace(/[0-9]/g, '') : user?.displayName : localStorage.getItem('name')}  bu kungi 10 ta so'ro'v yakunlandi 24 soatdan kiyin urinib ko'ring!`, "Ajiratilgan 10 ta so'ro'v yakunlandi 24 soatdan kiyin urinib ko'ring!"];
                     const randomIndex = Math.floor(Math.random() * reqRandom.length);
                     setGptMessage(reqRandom[randomIndex]);
+                
                     setCatchs(true)
+                           
+  
                 }
             };
             GptfetchData();
@@ -348,20 +356,40 @@ function Dashboard() {
 
     }, [detectedVoice]);
     useEffect(() => {
+        if (GptMessage !== null) {
+            if (GptMessage.includes("```")) {
+              
+                let start = GptMessage.indexOf("```") + 3;
+                let end = GptMessage.lastIndexOf("```");    
+  
+                setIsCode(GptMessage.substring(start, end))
+          
+    setGptMessage(GptMessage.replace(GptMessage.substring(start, end), " ").replace('``` ```', '')); 
+   
+                console.log(GptMessage);
+                
+                console.log("Code detected");
+            } else {
+                console.log("Matnda ``` belgisi yo'q.");
+            }
+        }
+    }, [GptMessage]);
+    useEffect(() => {
         const launguageGptMessage = franc(GptMessage)
         if (launguageGptMessage === 'uzn' || launguageGptMessage === "und" || catchs === true) {
 
         } else if (launguageGptMessage === 'eng' || launguageGptMessage === 'rus' || launguageGptMessage === 'arb' || launguageGptMessage === "tur") {
             setVoiceTrue(true)
-            setGptMessage("Savolingizga chunmadim qaytara olasizmi")
+            setGptMessage("Savolingizga chunmadim qaytara olasizmi!")
 
-            setMessageFromIF('Savolingizga chunmadim qaytara olasizmi')
+            setMessageFromIF('Savolingizga chunmadim qaytara olasizmi!')
 
         }
         console.log(launguageGptMessage);
 
         const voiceFetchData = async () => {
-            if (GptMessage !== '' && detectedVoice !== '') {
+            if (GptMessage !== '' &&  detectedVoice !== '') {
+                
                 setIsLoading(true);
                 const config = {
                     method: 'post',
@@ -382,7 +410,12 @@ function Dashboard() {
                     setAssistantVoiceContent(null);
                     setTimeout(() => {
                         setAssistantVoiceContent(null);
-                        setAssistantVoiceContent(voiceUrl);
+             if(!GptMessage.includes("```")){
+                setAssistantVoiceContent(voiceUrl);
+             }else{
+                setAssistantVoiceContent(null);
+
+             }
                         setIsLoading(false);
                         setIsAssistantVoiceReady(true);
 
@@ -412,6 +445,7 @@ function Dashboard() {
             setVoiceTrue(false)
             setTimeout(() => {
                 setGptMessage('')
+
                 if (typeof MessageFromIF === 'function') {
                     MessageFromIF('');
                 }
@@ -452,24 +486,7 @@ function Dashboard() {
 
 
     const [dots, setDots] = useState("...")
-    useEffect(() => {
-        if (GptMessage !== null) {
-            if (GptMessage.includes("```")) {
-              
-                let start = GptMessage.indexOf("```") + 3;
-                let end = GptMessage.lastIndexOf("```");    
-                setIsCode(GptMessage.substring(start, end))
-
-    setGptMessage(GptMessage.replace(GptMessage.substring(start, end), " ", "```" , "")) 
-
-                console.log(GptMessage);
-                
-                console.log("Code detected");
-            } else {
-                console.log("Matnda ``` belgisi yo'q.");
-            }
-        }
-    }, [GptMessage]);
+   
     console.log(IsCode);
     const [user, setUser] = useState(null)
     useEffect(() => {
@@ -530,7 +547,7 @@ function Dashboard() {
 
 
     const handleChangeAssistantGender = (e) => {
-        if (e.target.value === 'erkak') {
+        if (e.target.value === 'Sardor') {
             setAssistantgender('davron')
         }
         else {
@@ -614,7 +631,7 @@ function Dashboard() {
 
                                         <select onChange={handleChangeAssistantGender} className='AssistantGender'>
                                             <option >Marjona</option>
-                                            <option >Sanjar</option>
+                                            <option >Sardor</option>
                                         </select>
 
                                     </form>
